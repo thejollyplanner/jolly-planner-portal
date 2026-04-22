@@ -54,14 +54,31 @@
                 </form>
             </div>
 
+            <div id="admin-controls" class="hidden flex flex-wrap items-center gap-4 mb-6 bg-white p-6 rounded-[2rem] border border-gray-200 shadow-sm">
+                <div class="flex flex-col">
+                    <label class="text-[9px] font-black text-gray-400 uppercase mb-2 ml-2">Tax Year Filter</label>
+                    <select id="year-filter" onchange="fetchBookings()" class="bg-gray-50 p-3 rounded-xl border-none text-xs font-bold outline-none focus:ring-2 focus:ring-red-900">
+                        <option value="all">All Time</option>
+                        <option value="2026" selected>2026 Fiscal</option>
+                        <option value="2025">2025 Fiscal</option>
+                    </select>
+                </div>
+                <div class="flex flex-col">
+                    <label class="text-[9px] font-black text-gray-400 uppercase mb-2 ml-2">View Mode</label>
+                    <button id="group-toggle" onclick="toggleGrouping()" class="bg-gray-50 p-3 rounded-xl border border-gray-200 text-[10px] font-black uppercase tracking-widest hover:bg-red-50 hover:text-red-900 transition-all">
+                        Group By Agent: OFF
+                    </button>
+                </div>
+            </div>
+
             <div class="bg-white rounded-[2.5rem] shadow-sm border border-gray-200 overflow-hidden">
                 <div class="p-8 border-b border-gray-50 bg-gray-50/30 flex justify-between items-center">
-                    <h3 id="ledger-title" class="text-[11px] font-black uppercase tracking-[0.2em] text-gray-400 italic">Personal Commission Ledger</h3>
+                    <h3 id="ledger-title" class="text-[11px] font-black uppercase tracking-[0.2em] text-gray-400 italic">Agency Commission Ledger</h3>
                     <div id="admin-badge" class="hidden text-[9px] font-black bg-red-100 text-red-900 px-3 py-1 rounded-full uppercase tracking-widest">Master Admin View</div>
                 </div>
                 <table class="w-full text-left">
                     <thead class="bg-white text-[10px] uppercase font-black text-gray-400 border-b border-gray-50">
-                        <tr><th class="py-5 px-8">Agent</th><th class="py-5 px-8">Client</th><th class="py-5 px-8">Gross</th><th id="share-header" class="py-5 px-8">Your Share</th><th class="py-5 px-8">Date</th><th class="py-5 px-8 text-right">Status</th></tr>
+                        <tr><th class="py-5 px-8">Agent</th><th class="py-5 px-8">Client</th><th class="py-5 px-8">Gross</th><th id="share-header" class="py-5 px-8">Agent Payout</th><th class="py-5 px-8">Date</th><th class="py-5 px-8 text-right">Status</th></tr>
                     </thead>
                     <tbody id="bookings-list"></tbody>
                 </table>
@@ -76,6 +93,7 @@
 
         const ADMIN_EMAIL = 'thejollyplannerta@gmail.com'; 
         let currentAgent = null;
+        let isGrouped = false;
 
         async function attemptLogin() {
             const email = document.getElementById('login_email').value;
@@ -90,6 +108,7 @@
                 
                 if(email.toLowerCase() === ADMIN_EMAIL.toLowerCase()) {
                     document.getElementById('admin-badge').classList.remove('hidden');
+                    document.getElementById('admin-controls').classList.remove('hidden');
                     document.getElementById('ledger-title').innerText = "Master Agency Ledger";
                     document.getElementById('share-header').innerText = "Agent Payout";
                 }
@@ -97,9 +116,15 @@
             } else { alert("Invalid Credentials, Captain."); }
         }
 
+        function toggleGrouping() {
+            isGrouped = !isGrouped;
+            document.getElementById('group-toggle').innerText = `Group By Agent: ${isGrouped ? 'ON' : 'OFF'}`;
+            fetchBookings();
+        }
+
         async function updateStatus(id, newStatus) {
-            const { error } = await _supabase.from('Bookings').update({ status: newStatus }).eq('id', id);
-            if (!error) fetchBookings();
+            await _supabase.from('Bookings').update({ status: newStatus }).eq('id', id);
+            fetchBookings();
         }
 
         async function saveBooking() {
@@ -117,22 +142,37 @@
         }
 
         async function fetchBookings() {
+            const year = document.getElementById('year-filter').value;
             let query = _supabase.from('Bookings').select('*');
+            
+            // Apply Year Filter
+            if (year !== 'all') {
+                query = query.gte('travel_date', `${year}-01-01`).lte('travel_date', `${year}-12-31`);
+            }
+
+            // Apply Agent Privacy Filter
             if (currentAgent.email.toLowerCase() !== ADMIN_EMAIL.toLowerCase()) {
                 query = query.eq('agent_name', `${currentAgent.first_name} ${currentAgent.last_name}`);
             }
-            const { data } = await query.order('created_at', { ascending: false });
+
+            const { data } = await query.order('agent_name', { ascending: true }).order('created_at', { ascending: false });
             const list = document.getElementById('bookings-list');
             list.innerHTML = ''; 
+
+            let lastAgent = "";
             
             data.forEach(row => {
-                const myShare = (row.amount * currentAgent.commission_rate).toFixed(2);
                 const isAdmin = currentAgent.email.toLowerCase() === ADMIN_EMAIL.toLowerCase();
                 const isPaid = row.status === 'Paid';
+                const myShare = (row.amount * currentAgent.commission_rate).toFixed(2);
                 
+                // Add separator for grouping
+                if (isGrouped && isAdmin && row.agent_name !== lastAgent) {
+                    list.innerHTML += `<tr class="bg-gray-100/50"><td colspan="6" class="py-3 px-8 text-[10px] font-black uppercase tracking-[0.2em] text-red-900 border-y border-gray-200">⚓ Agent: ${row.agent_name}</td></tr>`;
+                    lastAgent = row.agent_name;
+                }
+
                 let statusHtml = `<span class="${isPaid ? 'bg-green-500' : 'bg-orange-400'} text-white text-[10px] font-black px-4 py-1.5 rounded-full uppercase tracking-widest">${row.status || 'Pending'}</span>`;
-                
-                // If Admin and NOT paid, show the button
                 if(isAdmin && !isPaid) {
                     statusHtml = `<button onclick="updateStatus(${row.id}, 'Paid')" class="bg-gray-200 hover:bg-green-500 hover:text-white text-gray-500 text-[10px] font-black px-4 py-1.5 rounded-full uppercase tracking-widest transition-all">Mark as Paid</button>`;
                 }
