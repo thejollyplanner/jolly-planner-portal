@@ -42,13 +42,13 @@
             <div class="bg-white p-10 rounded-[2.5rem] shadow-sm border border-gray-200 mb-10 relative overflow-hidden">
                 <div class="absolute top-0 left-0 w-full h-1.5 bg-tropical-gradient"></div>
                 <h2 class="text-xs font-black uppercase tracking-[0.2em] text-black mb-8 italic">Log New Commission</h2>
-                <form id="bookingForm" class="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-6 gap-6 text-sm font-semibold">
+                <form id="bookingForm" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-6 text-sm font-semibold">
                     <div class="flex flex-col"><label class="text-[9px] text-gray-400 mb-2 uppercase ml-2">Client</label><input id="client_name" type="text" class="bg-gray-50 p-4 rounded-2xl border-none"></div>
                     <div class="flex flex-col"><label class="text-[9px] text-gray-400 mb-2 uppercase ml-2">Supplier</label><input id="supplier" type="text" class="bg-gray-50 p-4 rounded-2xl border-none"></div>
                     <div class="flex flex-col"><label class="text-[9px] text-gray-400 mb-2 uppercase ml-2">Booking #</label><input id="booking_no" type="text" class="bg-gray-50 p-4 rounded-2xl border-none"></div>
                     <div class="flex flex-col"><label class="text-[9px] text-gray-400 mb-2 uppercase ml-2">Total Comm $</label><input id="amount" type="number" class="bg-gray-50 p-4 rounded-2xl border-none font-bold"></div>
                     <div class="flex flex-col"><label class="text-[9px] text-gray-400 mb-2 uppercase ml-2">Travel Date</label><input id="travel_date" type="date" class="bg-gray-50 p-4 rounded-2xl border-none text-gray-500"></div>
-                    <div class="flex flex-col justify-end"><button type="button" onclick="saveBooking()" class="bg-black text-white font-black py-4 rounded-2xl hover:bg-red-900 transition-all uppercase text-[10px] tracking-widest">Submit Log</button></div>
+                    <div class="flex flex-col justify-end lg:col-span-5"><button type="button" onclick="saveBooking()" class="bg-black text-white font-black py-4 rounded-2xl hover:bg-red-900 transition-all uppercase text-[10px] tracking-widest w-full lg:w-1/4 ml-auto">Submit Log</button></div>
                 </form>
             </div>
 
@@ -130,9 +130,11 @@
         async function saveBooking() {
             const fullName = `${currentAgent.first_name} ${currentAgent.last_name}`;
             await _supabase.from('Bookings').insert([{ 
-                agent_name: fullName, client_name: document.getElementById('client_name').value, 
+                agent_name: fullName, 
+                client_name: document.getElementById('client_name').value, 
                 amount: parseFloat(document.getElementById('amount').value), 
-                travel_date: document.getElementById('travel_date').value, status: 'Pending',
+                travel_date: document.getElementById('travel_date').value, 
+                status: 'Pending',
                 notes: `Supplier: ${document.getElementById('supplier').value} | Ref: ${document.getElementById('booking_no').value}` 
             }]);
             document.getElementById('bookingForm').reset();
