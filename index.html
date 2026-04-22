@@ -75,7 +75,6 @@
         const _supabase = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
         const ADMIN_EMAIL = 'thejollyplannerta@gmail.com'; 
-
         let currentAgent = null;
 
         async function attemptLogin() {
@@ -94,36 +93,50 @@
                     document.getElementById('ledger-title').innerText = "Master Agency Ledger";
                     document.getElementById('share-header').innerText = "Agent Payout";
                 }
-                
                 fetchBookings();
             } else { alert("Invalid Credentials, Captain."); }
         }
 
+        async function updateStatus(id, newStatus) {
+            const { error } = await _supabase.from('Bookings').update({ status: newStatus }).eq('id', id);
+            if (!error) fetchBookings();
+        }
+
         async function saveBooking() {
             const fullName = `${currentAgent.first_name} ${currentAgent.last_name}`;
-            const { error } = await _supabase.from('Bookings').insert([{ 
+            await _supabase.from('Bookings').insert([{ 
                 agent_name: fullName,
                 client_name: document.getElementById('client_name').value, 
                 amount: parseFloat(document.getElementById('amount').value), 
                 travel_date: document.getElementById('travel_date').value,
+                status: 'Pending',
                 notes: `Supplier: ${document.getElementById('supplier').value} | Ref: ${document.getElementById('booking_no').value}` 
             }]);
-            if (!error) { document.getElementById('bookingForm').reset(); fetchBookings(); }
+            document.getElementById('bookingForm').reset();
+            fetchBookings();
         }
 
         async function fetchBookings() {
             let query = _supabase.from('Bookings').select('*');
-            
             if (currentAgent.email.toLowerCase() !== ADMIN_EMAIL.toLowerCase()) {
-                const fullName = `${currentAgent.first_name} ${currentAgent.last_name}`;
-                query = query.eq('agent_name', fullName);
+                query = query.eq('agent_name', `${currentAgent.first_name} ${currentAgent.last_name}`);
             }
-
             const { data } = await query.order('created_at', { ascending: false });
             const list = document.getElementById('bookings-list');
             list.innerHTML = ''; 
+            
             data.forEach(row => {
                 const myShare = (row.amount * currentAgent.commission_rate).toFixed(2);
+                const isAdmin = currentAgent.email.toLowerCase() === ADMIN_EMAIL.toLowerCase();
+                const isPaid = row.status === 'Paid';
+                
+                let statusHtml = `<span class="${isPaid ? 'bg-green-500' : 'bg-orange-400'} text-white text-[10px] font-black px-4 py-1.5 rounded-full uppercase tracking-widest">${row.status || 'Pending'}</span>`;
+                
+                // If Admin and NOT paid, show the button
+                if(isAdmin && !isPaid) {
+                    statusHtml = `<button onclick="updateStatus(${row.id}, 'Paid')" class="bg-gray-200 hover:bg-green-500 hover:text-white text-gray-500 text-[10px] font-black px-4 py-1.5 rounded-full uppercase tracking-widest transition-all">Mark as Paid</button>`;
+                }
+
                 list.innerHTML += `
                     <tr class="border-b border-gray-100 text-sm hover:bg-gray-50 transition">
                         <td class="py-4 px-8 font-bold text-black">${row.agent_name}</td>
@@ -131,7 +144,7 @@
                         <td class="py-4 px-8 font-mono font-bold">$${row.amount}</td>
                         <td class="py-4 px-8 font-mono text-green-700 font-bold">$${myShare}</td>
                         <td class="py-4 px-8 text-gray-400 font-medium">${row.travel_date}</td>
-                        <td class="py-4 px-8 text-right"><span class="bg-orange-400 text-white text-[10px] font-black px-4 py-1.5 rounded-full uppercase tracking-widest">Pending</span></td>
+                        <td class="py-4 px-8 text-right">${statusHtml}</td>
                     </tr>`;
             });
         }
