@@ -13,9 +13,8 @@
         // Use your live project credentials
         const SUPABASE_URL = 'https://dhzkyzqiwxavcxohzfei.supabase.co';
         const SUPABASE_KEY = 'sb_publishable_EwHbzlR1eSNaRrGCxRbdCQ_R_Djvc08';
-        const supabase = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+        const _supabase = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
-        // Function to save the data to your 'Bookings' table
         async function saveBooking() {
             const agent = document.getElementById('agent_name').value;
             const client = document.getElementById('client_name').value;
@@ -27,7 +26,9 @@
                 return;
             }
 
-            const { data, error } = await supabase
+            console.log("Sending data to Supabase...");
+
+            const { data, error } = await _supabase
                 .from('Bookings')
                 .insert([{ 
                     agent_name: agent, 
@@ -37,10 +38,12 @@
                 }]);
 
             if (error) {
-                alert('Error: ' + error.message);
+                // This will tell us EXACTLY what is wrong
+                alert('CRITICAL ERROR: ' + error.message + '\nCode: ' + error.code);
+                console.error(error);
             } else {
                 alert('Treasure Logged Successfully!');
-                location.reload(); 
+                document.getElementById('bookingForm').reset();
             }
         }
     </script>
@@ -48,56 +51,22 @@
     <nav class="bg-black text-white px-8 py-4 flex justify-between items-center shadow-md border-b-4 border-yellow-600">
         <div class="flex items-center space-x-3">
             <span class="text-3xl">⚓</span>
-            <div class="text-xl font-black tracking-tighter uppercase">
-                <span class="text-white">THE JOLLY</span> <span class="text-yellow-500">PLANNER</span>
-            </div>
-        </div>
-        <div class="flex items-center space-x-8 text-sm font-bold uppercase tracking-widest">
-            <a href="#" class="text-red-500 border-b-2 border-red-500 pb-1">Command Center</a>
-            <div class="bg-gray-900 px-3 py-1.5 rounded-full border border-gray-700">
-                <span class="text-xs text-gray-300">Captain Zach</span>
-            </div>
+            <div class="text-xl font-black uppercase"><span class="text-white">THE JOLLY</span> <span class="text-yellow-500">PLANNER</span></div>
         </div>
     </nav>
 
-    <main class="p-8 max-w-7xl mx-auto">
-        <div class="mb-10 flex justify-between items-center">
-            <div>
-                <h1 class="text-4xl font-black text-black uppercase tracking-tighter italic">Ledger</h1>
-                <p class="text-gray-500 font-medium">Monitoring 2026 Fleet Commissions.</p>
-            </div>
-        </div>
-
-        <div class="bg-white p-10 rounded-3xl shadow-xl border border-gray-100 mb-12 relative overflow-hidden">
+    <main class="p-8 max-w-7xl mx-auto text-center">
+        <div class="bg-white p-10 rounded-3xl shadow-xl border border-gray-100 mb-12 relative overflow-hidden text-left mx-auto max-w-4xl">
             <div class="absolute top-0 left-0 w-full h-2 bg-red-600"></div>
-            <h2 class="text-xl font-black text-black mb-8 uppercase tracking-widest">🚩 Log New Booking</h2>
-            <form class="grid grid-cols-1 md:grid-cols-5 gap-6">
-                <div class="flex flex-col">
-                    <label class="text-[10px] font-black text-gray-400 mb-2 uppercase">Agent Name</label>
-                    <input id="agent_name" type="text" placeholder="e.g. Jane Smith" class="bg-gray-50 border-2 border-gray-100 p-3 rounded-xl outline-none focus:border-red-500">
-                </div>
-                <div class="flex flex-col">
-                    <label class="text-[10px] font-black text-gray-400 mb-2 uppercase">Client Name</label>
-                    <input id="client_name" type="text" placeholder="e.g. Disney Trip" class="bg-gray-50 border-2 border-gray-100 p-3 rounded-xl outline-none focus:border-red-500">
-                </div>
-                <div class="flex flex-col">
-                    <label class="text-[10px] font-black text-gray-400 mb-2 uppercase">Commission $</label>
-                    <input id="amount" type="number" placeholder="0.00" class="bg-gray-50 border-2 border-gray-100 p-3 rounded-xl outline-none focus:border-red-500">
-                </div>
-                <div class="flex flex-col">
-                    <label class="text-[10px] font-black text-gray-400 mb-2 uppercase">Travel Date</label>
-                    <input id="travel_date" type="date" class="bg-gray-50 border-2 border-gray-100 p-3 rounded-xl outline-none focus:border-red-500">
-                </div>
-                <div class="flex flex-col justify-end">
-                    <button type="button" onclick="saveBooking()" class="bg-red-600 text-white font-black py-3.5 rounded-xl hover:bg-black transition shadow-lg uppercase text-xs tracking-widest">
-                        Record Treasure
-                    </button>
-                </div>
+            <h2 class="text-xl font-black text-black mb-8 uppercase tracking-widest text-center">🚩 Test Log</h2>
+            <form id="bookingForm" class="space-y-4">
+                <input id="agent_name" type="text" placeholder="Agent Name" class="w-full bg-gray-50 border-2 border-gray-100 p-3 rounded-xl outline-none focus:border-red-500">
+                <input id="client_name" type="text" placeholder="Client Name" class="w-full bg-gray-50 border-2 border-gray-100 p-3 rounded-xl outline-none focus:border-red-500">
+                <input id="amount" type="number" placeholder="Amount" class="w-full bg-gray-50 border-2 border-gray-100 p-3 rounded-xl outline-none focus:border-red-500">
+                <input id="travel_date" type="date" class="w-full bg-gray-50 border-2 border-gray-100 p-3 rounded-xl outline-none focus:border-red-500">
+                <button type="button" onclick="saveBooking()" class="w-full bg-red-600 text-white font-black py-4 rounded-xl hover:bg-black transition shadow-lg uppercase tracking-widest">Record Treasure</button>
             </form>
         </div>
-
-        <p class="text-center text-gray-400 text-sm font-bold uppercase tracking-widest">Check Supabase Table Editor to see logged data</p>
     </main>
-
 </body>
 </html>
