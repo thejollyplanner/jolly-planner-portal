@@ -7,14 +7,14 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 </head>
-<body class="bg-gray-50 font-sans text-gray-900">
+<body class="bg-gray-50 font-sans text-gray-900" onload="fetchBookings()">
 
     <script>
-        // Use your live project credentials
         const SUPABASE_URL = 'https://dhzkyzqiwxavcxohzfei.supabase.co';
         const SUPABASE_KEY = 'sb_publishable_EwHbzlR1eSNaRrGCxRbdCQ_R_Djvc08';
         const _supabase = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
+        // SAVE DATA
         async function saveBooking() {
             const agent = document.getElementById('agent_name').value;
             const client = document.getElementById('client_name').value;
@@ -26,25 +26,42 @@
                 return;
             }
 
-            console.log("Sending data to Supabase...");
-
-            const { data, error } = await _supabase
+            const { error } = await _supabase
                 .from('Bookings')
-                .insert([{ 
-                    agent_name: agent, 
-                    client_name: client, 
-                    amount: parseFloat(price), 
-                    travel_date: date 
-                }]);
+                .insert([{ agent_name: agent, client_name: client, amount: parseFloat(price), travel_date: date }]);
 
             if (error) {
-                // This will tell us EXACTLY what is wrong
-                alert('CRITICAL ERROR: ' + error.message + '\nCode: ' + error.code);
-                console.error(error);
+                alert('Error: ' + error.message);
             } else {
-                alert('Treasure Logged Successfully!');
+                alert('Treasure Logged!');
                 document.getElementById('bookingForm').reset();
+                fetchBookings(); // Refresh the table
             }
+        }
+
+        // FETCH DATA TO SHOW IN TABLE
+        async function fetchBookings() {
+            const { data, error } = await _supabase
+                .from('Bookings')
+                .select('*')
+                .order('created_at', { ascending: false });
+
+            if (error) console.error(error);
+            
+            const list = document.getElementById('bookings-list');
+            list.innerHTML = ''; 
+
+            data.forEach(row => {
+                list.innerHTML += `
+                    <tr class="border-b border-gray-50 hover:bg-gray-50 transition">
+                        <td class="py-4 px-4 font-bold text-black">${row.agent_name}</td>
+                        <td class="py-4 px-4 text-gray-600">${row.client_name}</td>
+                        <td class="py-4 px-4 font-mono text-green-600 font-bold">$${row.amount}</td>
+                        <td class="py-4 px-4 text-gray-500">${row.travel_date}</td>
+                        <td class="py-4 px-4"><span class="bg-yellow-100 text-yellow-700 text-[10px] font-black px-2 py-1 rounded uppercase">Pending</span></td>
+                    </tr>
+                `;
+            });
         }
     </script>
 
@@ -55,17 +72,33 @@
         </div>
     </nav>
 
-    <main class="p-8 max-w-7xl mx-auto text-center">
-        <div class="bg-white p-10 rounded-3xl shadow-xl border border-gray-100 mb-12 relative overflow-hidden text-left mx-auto max-w-4xl">
+    <main class="p-8 max-w-7xl mx-auto">
+        <div class="bg-white p-10 rounded-3xl shadow-xl border border-gray-100 mb-12 relative overflow-hidden">
             <div class="absolute top-0 left-0 w-full h-2 bg-red-600"></div>
-            <h2 class="text-xl font-black text-black mb-8 uppercase tracking-widest text-center">🚩 Test Log</h2>
-            <form id="bookingForm" class="space-y-4">
-                <input id="agent_name" type="text" placeholder="Agent Name" class="w-full bg-gray-50 border-2 border-gray-100 p-3 rounded-xl outline-none focus:border-red-500">
-                <input id="client_name" type="text" placeholder="Client Name" class="w-full bg-gray-50 border-2 border-gray-100 p-3 rounded-xl outline-none focus:border-red-500">
-                <input id="amount" type="number" placeholder="Amount" class="w-full bg-gray-50 border-2 border-gray-100 p-3 rounded-xl outline-none focus:border-red-500">
-                <input id="travel_date" type="date" class="w-full bg-gray-50 border-2 border-gray-100 p-3 rounded-xl outline-none focus:border-red-500">
-                <button type="button" onclick="saveBooking()" class="w-full bg-red-600 text-white font-black py-4 rounded-xl hover:bg-black transition shadow-lg uppercase tracking-widest">Record Treasure</button>
+            <h2 class="text-xl font-black text-black mb-8 uppercase tracking-widest">🚩 Log New Booking</h2>
+            <form id="bookingForm" class="grid grid-cols-1 md:grid-cols-5 gap-6 text-left">
+                <div class="flex flex-col"><label class="text-[10px] font-black text-gray-400 mb-2 uppercase">Agent Name</label><input id="agent_name" type="text" class="bg-gray-50 border-2 border-gray-100 p-3 rounded-xl outline-none focus:border-red-500"></div>
+                <div class="flex flex-col"><label class="text-[10px] font-black text-gray-400 mb-2 uppercase">Client Name</label><input id="client_name" type="text" class="bg-gray-50 border-2 border-gray-100 p-3 rounded-xl outline-none focus:border-red-500"></div>
+                <div class="flex flex-col"><label class="text-[10px] font-black text-gray-400 mb-2 uppercase">Commission $</label><input id="amount" type="number" class="bg-gray-50 border-2 border-gray-100 p-3 rounded-xl outline-none focus:border-red-500"></div>
+                <div class="flex flex-col"><label class="text-[10px] font-black text-gray-400 mb-2 uppercase">Travel Date</label><input id="travel_date" type="date" class="bg-gray-50 border-2 border-gray-100 p-3 rounded-xl outline-none focus:border-red-500"></div>
+                <div class="flex flex-col justify-end"><button type="button" onclick="saveBooking()" class="bg-red-600 text-white font-black py-3.5 rounded-xl hover:bg-black transition shadow-lg uppercase text-xs tracking-widest">Record Treasure</button></div>
             </form>
+        </div>
+
+        <div class="bg-white rounded-3xl shadow-xl border border-gray-100 overflow-hidden">
+            <table class="w-full text-left">
+                <thead class="bg-gray-900 text-white text-[10px] uppercase tracking-widest font-black">
+                    <tr>
+                        <th class="py-4 px-4">Agent</th>
+                        <th class="py-4 px-4">Client</th>
+                        <th class="py-4 px-4">Amount</th>
+                        <th class="py-4 px-4">Travel Date</th>
+                        <th class="py-4 px-4">Status</th>
+                    </tr>
+                </thead>
+                <tbody id="bookings-list" class="text-sm">
+                    </tbody>
+            </table>
         </div>
     </main>
 </body>
