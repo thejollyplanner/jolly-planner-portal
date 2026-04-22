@@ -9,10 +9,10 @@
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;700;900&display=swap');
         body { font-family: 'Inter', sans-serif; }
-        .accent-teal { color: #2DD4BF; }
+        .accent-teal { color: #14B8A6; }
         .bg-hibiscus { background-color: #F472B6; }
         .bg-sunset { background-color: #FB923C; }
-        .bg-tropical { background: linear-gradient(135deg, #2DD4BF 0%, #F472B6 100%); }
+        .bg-tropical-gradient { background: linear-gradient(135deg, #14B8A6 0%, #F472B6 100%); }
     </style>
 </head>
 <body class="bg-gray-50 text-gray-900" onload="fetchBookings()">
@@ -64,22 +64,22 @@
         }
     </script>
 
-    <nav class="bg-black text-white px-8 py-4 flex justify-between items-center shadow-2xl border-b-4 border-teal-400">
+    <nav class="bg-teal-500 text-white px-8 py-4 flex justify-between items-center shadow-lg border-b-4 border-teal-600">
         <div class="flex items-center space-x-6">
             <img src="logo.png" alt="The Jolly Planner Logo" class="h-16 w-auto object-contain">
-            <div class="hidden md:block border-l border-gray-800 pl-6">
-                <div class="text-xl font-black uppercase tracking-tighter italic">The Jolly <span class="accent-teal">Planner</span></div>
-                <div class="text-[10px] uppercase tracking-[0.3em] text-gray-500 font-bold">Admin Command Center</div>
+            <div class="hidden md:block border-l border-teal-400 pl-6">
+                <div class="text-xl font-black uppercase tracking-tighter italic text-white">The Jolly Planner</div>
+                <div class="text-[10px] uppercase tracking-[0.3em] text-teal-100 font-bold">Admin Command Center</div>
             </div>
         </div>
-        <div class="text-[10px] font-black uppercase tracking-widest text-gray-400 bg-gray-900 px-4 py-2 rounded-full border border-gray-800">
+        <div class="text-[10px] font-black uppercase tracking-widest text-teal-100 bg-teal-600/50 px-4 py-2 rounded-full">
             v1.0 Secure
         </div>
     </nav>
 
     <main class="p-8 max-w-6xl mx-auto">
         <div class="bg-white p-10 rounded-[2.5rem] shadow-sm border border-gray-200 mb-10 relative overflow-hidden">
-            <div class="absolute top-0 left-0 w-full h-1.5 bg-tropical"></div>
+            <div class="absolute top-0 left-0 w-full h-1.5 bg-tropical-gradient"></div>
             <h2 class="text-xs font-black uppercase tracking-[0.2em] text-black mb-8">Log New Commission</h2>
             
             <form id="bookingForm" class="grid grid-cols-1 md:grid-cols-5 gap-6 text-sm font-semibold">
@@ -100,7 +100,7 @@
                     <input id="travel_date" type="date" class="bg-gray-50 p-4 rounded-2xl outline-none focus:ring-2 focus:ring-teal-400 border-none text-gray-500">
                 </div>
                 <div class="flex flex-col justify-end">
-                    <button type="button" onclick="saveBooking()" class="bg-black text-white font-black py-4 rounded-2xl hover:bg-teal-500 hover:scale-[1.02] active:scale-95 transition-all shadow-xl uppercase text-[10px] tracking-[0.2em]">
+                    <button type="button" onclick="saveBooking()" class="bg-black text-white font-black py-4 rounded-2xl hover:bg-teal-600 hover:scale-[1.02] active:scale-95 transition-all shadow-xl uppercase text-[10px] tracking-[0.2em]">
                         Submit Log
                     </button>
                 </div>
@@ -126,7 +126,7 @@
                     </tr>
                 </thead>
                 <tbody id="bookings-list">
-                </tbody>
+                    </tbody>
             </table>
         </div>
     </main>
