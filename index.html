@@ -1,10 +1,76 @@
 <!DOCTYPE html>
-<html>
-<body style="background-color: #f4f4f4; font-family: sans-serif; display: flex; justify-content: center; padding-top: 50px;">
-    <div style="background: white; border: 1px solid #ddd; padding: 25px; border-radius: 15px; width: 350px; box-shadow: 0 4px 8px rgba(0,0,0,0.1);">
-        <h2 style="margin-top: 0; color: #0044cc;">Upcoming Travel</h2>
-        <p style="font-size: 32px; font-weight: bold; margin: 15px 0;">$13,128.86</p>
-        <p style="color: #666;">Estimated Commission: <span style="color: green; font-weight: bold;">$970.34</span></p>
-    </div>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>The Jolly Planner | Agent Portal</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-100 font-sans">
+
+    <nav class="bg-white border-b border-gray-200 px-8 py-4 flex justify-between items-center">
+        <div class="flex items-center space-x-4">
+            <div class="text-2xl font-bold text-blue-900">THE JOLLY PLANNER</div>
+        </div>
+        <div class="flex items-center space-x-6 text-gray-600 font-medium">
+            <a href="#" class="text-blue-600 border-b-2 border-blue-600 pb-1">Dashboard</a>
+            <a href="#" class="hover:text-blue-600">Bookings</a>
+            <a href="#" class="hover:text-blue-600">Clients</a>
+            <div class="w-10 h-10 bg-blue-100 rounded-full flex items-center justify-center text-blue-900 font-bold">ZP</div>
+        </div>
+    </nav>
+
+    <main class="p-8 max-w-7xl mx-auto">
+        <div class="mb-8">
+            <h1 class="text-2xl font-bold text-gray-800">Agent Dashboard</h1>
+            <p class="text-gray-500">Welcome back, Zach. Here is your agency summary.</p>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-10">
+            <div class="bg-white p-6 rounded-xl shadow-sm border border-gray-200">
+                <p class="text-sm font-semibold text-gray-400 uppercase tracking-wider">Upcoming Travel</p>
+                <p class="text-3xl font-bold text-gray-800 mt-2">$13,128.86</p>
+                <div class="mt-4 w-full bg-gray-100 h-2 rounded-full">
+                    <div class="bg-blue-600 h-2 rounded-full w-[65%]"></div>
+                </div>
+            </div>
+
+            <div class="bg-white p-6 rounded-xl shadow-sm border border-gray-200">
+                <p class="text-sm font-semibold text-gray-400 uppercase tracking-wider">Annual Summary (2026)</p>
+                <p class="text-3xl font-bold text-gray-800 mt-2">$42,500.00</p>
+                <p class="text-green-600 text-sm mt-2 font-medium">↑ 12% from last year</p>
+            </div>
+
+            <div class="bg-white p-6 rounded-xl shadow-sm border border-gray-200">
+                <p class="text-sm font-semibold text-gray-400 uppercase tracking-wider">Est. Commissions</p>
+                <p class="text-3xl font-bold text-blue-600 mt-2">$970.34</p>
+                <p class="text-gray-500 text-sm mt-2">Payout expected Nov 15</p>
+            </div>
+        </div>
+
+        <div class="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
+            <div class="px-6 py-4 border-b border-gray-200 bg-gray-50">
+                <h3 class="font-bold text-gray-700">Recent Bookings</h3>
+            </div>
+            <table class="w-full text-left">
+                <thead class="bg-gray-50 text-gray-400 text-xs uppercase font-semibold">
+                    <tr>
+                        <th class="px-6 py-3">Client</th>
+                        <th class="px-6 py-3">Travel Date</th>
+                        <th class="px-6 py-3">Supplier</th>
+                        <th class="px-6 py-3">Status</th>
+                    </tr>
+                </thead>
+                <tbody class="divide-y divide-gray-200 text-gray-600">
+                    <tr>
+                        <td class="px-6 py-4 font-medium text-gray-900">Royal Caribbean Cruise</td>
+                        <td class="px-6 py-4">Oct 12, 2026</td>
+                        <td class="px-6 py-4">Vax VacationAccess</td>
+                        <td class="px-6 py-4"><span class="bg-yellow-100 text-yellow-700 px-3 py-1 rounded-full text-xs font-bold">Pending</span></td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </main>
 </body>
 </html>
