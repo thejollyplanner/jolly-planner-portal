@@ -6,15 +6,22 @@
     <title>The Jolly Planner | Admin Portal</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;700;900&display=swap');
+        body { font-family: 'Inter', sans-serif; }
+        .accent-teal { color: #2DD4BF; }
+        .bg-hibiscus { background-color: #F472B6; }
+        .bg-sunset { background-color: #FB923C; }
+        .bg-tropical { background: linear-gradient(135deg, #2DD4BF 0%, #F472B6 100%); }
+    </style>
 </head>
-<body class="bg-gray-50 font-sans text-gray-900" onload="fetchBookings()">
+<body class="bg-gray-50 text-gray-900" onload="fetchBookings()">
 
     <script>
         const SUPABASE_URL = 'https://dhzkyzqiwxavcxohzfei.supabase.co';
         const SUPABASE_KEY = 'sb_publishable_EwHbzlR1eSNaRrGCxRbdCQ_R_Djvc08';
         const _supabase = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
-        // SAVE DATA
         async function saveBooking() {
             const agent = document.getElementById('agent_name').value;
             const client = document.getElementById('client_name').value;
@@ -22,7 +29,7 @@
             const date = document.getElementById('travel_date').value;
 
             if(!agent || !client || !price || !date) {
-                alert("Arrr! Fill out the whole log before saving!");
+                alert("Fill out the log before saving!");
                 return;
             }
 
@@ -30,73 +37,85 @@
                 .from('Bookings')
                 .insert([{ agent_name: agent, client_name: client, amount: parseFloat(price), travel_date: date }]);
 
-            if (error) {
-                alert('Error: ' + error.message);
-            } else {
-                alert('Treasure Logged!');
+            if (error) { alert('Error: ' + error.message); } 
+            else {
+                alert('Booking Logged!');
                 document.getElementById('bookingForm').reset();
-                fetchBookings(); // Refresh the table
+                fetchBookings();
             }
         }
 
-        // FETCH DATA TO SHOW IN TABLE
         async function fetchBookings() {
-            const { data, error } = await _supabase
-                .from('Bookings')
-                .select('*')
-                .order('created_at', { ascending: false });
-
+            const { data, error } = await _supabase.from('Bookings').select('*').order('created_at', { ascending: false });
             if (error) console.error(error);
-            
             const list = document.getElementById('bookings-list');
             list.innerHTML = ''; 
-
             data.forEach(row => {
                 list.innerHTML += `
-                    <tr class="border-b border-gray-50 hover:bg-gray-50 transition">
-                        <td class="py-4 px-4 font-bold text-black">${row.agent_name}</td>
-                        <td class="py-4 px-4 text-gray-600">${row.client_name}</td>
-                        <td class="py-4 px-4 font-mono text-green-600 font-bold">$${row.amount}</td>
-                        <td class="py-4 px-4 text-gray-500">${row.travel_date}</td>
-                        <td class="py-4 px-4"><span class="bg-yellow-100 text-yellow-700 text-[10px] font-black px-2 py-1 rounded uppercase">Pending</span></td>
+                    <tr class="border-b border-gray-100 hover:bg-gray-50 transition">
+                        <td class="py-4 px-6 font-bold text-black">${row.agent_name}</td>
+                        <td class="py-4 px-6 text-gray-500">${row.client_name}</td>
+                        <td class="py-4 px-6 font-mono font-bold text-teal-600">$${row.amount}</td>
+                        <td class="py-4 px-6 text-gray-400 text-sm">${row.travel_date}</td>
+                        <td class="py-4 px-6"><span class="bg-sunset text-white text-[10px] font-black px-3 py-1 rounded-full uppercase tracking-tighter">Pending</span></td>
                     </tr>
                 `;
             });
         }
     </script>
 
-    <nav class="bg-black text-white px-8 py-4 flex justify-between items-center shadow-md border-b-4 border-yellow-600">
-        <div class="flex items-center space-x-3">
-            <span class="text-3xl">⚓</span>
-            <div class="text-xl font-black uppercase"><span class="text-white">THE JOLLY</span> <span class="text-yellow-500">PLANNER</span></div>
+    <nav class="bg-black text-white px-8 py-4 flex justify-between items-center shadow-2xl border-b-4 border-teal-400">
+        <div class="flex items-center space-x-6">
+            <img src="logo.png" alt="The Jolly Planner Logo" class="h-16 w-auto">
+            <div class="hidden md:block border-l border-gray-800 pl-6">
+                <div class="text-xl font-black uppercase tracking-tighter italic">The Jolly <span class="accent-teal">Planner</span></div>
+                <div class="text-[10px] uppercase tracking-[0.3em] text-gray-500 font-bold">Admin Command Center</div>
+            </div>
+        </div>
+        <div class="text-[10px] font-black uppercase tracking-widest text-gray-400 bg-gray-900 px-4 py-2 rounded-full border border-gray-800">
+            v1.0 Secure
         </div>
     </nav>
 
-    <main class="p-8 max-w-7xl mx-auto">
-        <div class="bg-white p-10 rounded-3xl shadow-xl border border-gray-100 mb-12 relative overflow-hidden">
-            <div class="absolute top-0 left-0 w-full h-2 bg-red-600"></div>
-            <h2 class="text-xl font-black text-black mb-8 uppercase tracking-widest">🚩 Log New Booking</h2>
-            <form id="bookingForm" class="grid grid-cols-1 md:grid-cols-5 gap-6 text-left">
-                <div class="flex flex-col"><label class="text-[10px] font-black text-gray-400 mb-2 uppercase">Agent Name</label><input id="agent_name" type="text" class="bg-gray-50 border-2 border-gray-100 p-3 rounded-xl outline-none focus:border-red-500"></div>
-                <div class="flex flex-col"><label class="text-[10px] font-black text-gray-400 mb-2 uppercase">Client Name</label><input id="client_name" type="text" class="bg-gray-50 border-2 border-gray-100 p-3 rounded-xl outline-none focus:border-red-500"></div>
-                <div class="flex flex-col"><label class="text-[10px] font-black text-gray-400 mb-2 uppercase">Commission $</label><input id="amount" type="number" class="bg-gray-50 border-2 border-gray-100 p-3 rounded-xl outline-none focus:border-red-500"></div>
-                <div class="flex flex-col"><label class="text-[10px] font-black text-gray-400 mb-2 uppercase">Travel Date</label><input id="travel_date" type="date" class="bg-gray-50 border-2 border-gray-100 p-3 rounded-xl outline-none focus:border-red-500"></div>
-                <div class="flex flex-col justify-end"><button type="button" onclick="saveBooking()" class="bg-red-600 text-white font-black py-3.5 rounded-xl hover:bg-black transition shadow-lg uppercase text-xs tracking-widest">Record Treasure</button></div>
+    <main class="p-8 max-w-6xl mx-auto">
+        <div class="bg-white p-8 rounded-[2.5rem] shadow-sm border border-gray-200 mb-10 relative overflow-hidden">
+            <div class="absolute top-0 left-0 w-full h-1.5 bg-tropical"></div>
+            <div class="flex items-center space-x-2 mb-8">
+                <h2 class="text-xs font-black uppercase tracking-[0.2em] text-black">Log New Commission</h2>
+            </div>
+            
+            <form id="bookingForm" class="grid grid-cols-1 md:grid-cols-5 gap-6">
+                <div class="flex flex-col"><label class="text-[9px] font-black text-gray-400 mb-2 uppercase ml-2">Agent Name</label><input id="agent_name" type="text" placeholder="Who logged it?" class="bg-gray-50 p-4 rounded-2xl outline-none focus:ring-2 focus:ring-teal-400 border-none text-sm font-semibold"></div>
+                <div class="flex flex-col"><label class="text-[9px] font-black text-gray-400 mb-2 uppercase ml-2">Client Name</label><input id="client_name" type="text" placeholder="Traveler Name" class="bg-gray-50 p-4 rounded-2xl outline-none focus:ring-2 focus:ring-teal-400 border-none text-sm font-semibold"></div>
+                <div class="flex flex-col"><label class="text-[9px] font-black text-gray-400 mb-2 uppercase ml-2">Commission $</label><input id="amount" type="number" placeholder="0.00" class="bg-gray-50 p-4 rounded-2xl outline-none focus:ring-2 focus:ring-teal-400 border-none text-sm font-mono font-bold"></div>
+                <div class="flex flex-col"><label class="text-[9px] font-black text-gray-400 mb-2 uppercase ml-2">Travel Date</label><input id="travel_date" type="date" class="bg-gray-50 p-4 rounded-2xl outline-none focus:ring-2 focus:ring-teal-400 border-none text-sm text-gray-500 font-semibold"></div>
+                <div class="flex flex-col justify-end">
+                    <button type="button" onclick="saveBooking()" class="bg-black text-white font-black py-4 rounded-2xl hover:bg-teal-500 transition-all shadow-xl uppercase text-[10px] tracking-[0.2em]">
+                        Submit Log
+                    </button>
+                </div>
             </form>
         </div>
 
-        <div class="bg-white rounded-3xl shadow-xl border border-gray-100 overflow-hidden">
+        <div class="bg-white rounded-[2.5rem] shadow-sm border border-gray-200 overflow-hidden">
+            <div class="p-8 border-b border-gray-50 flex justify-between items-center bg-gray-50/30">
+                <h3 class="text-[11px] font-black uppercase tracking-[0.2em] text-gray-400">Master Commission Ledger</h3>
+                <div class="flex items-center space-x-2">
+                    <span class="w-2 h-2 bg-teal-400 rounded-full animate-pulse"></span>
+                    <span class="text-[10px] font-bold text-gray-400 uppercase tracking-widest">Live Sync</span>
+                </div>
+            </div>
             <table class="w-full text-left">
-                <thead class="bg-gray-900 text-white text-[10px] uppercase tracking-widest font-black">
+                <thead class="bg-white text-[10px] uppercase tracking-widest font-black text-gray-400 border-b border-gray-50">
                     <tr>
-                        <th class="py-4 px-4">Agent</th>
-                        <th class="py-4 px-4">Client</th>
-                        <th class="py-4 px-4">Amount</th>
-                        <th class="py-4 px-4">Travel Date</th>
-                        <th class="py-4 px-4">Status</th>
+                        <th class="py-5 px-8 italic">Agent</th>
+                        <th class="py-5 px-8">Client</th>
+                        <th class="py-5 px-8 italic">Amount</th>
+                        <th class="py-5 px-8">Date</th>
+                        <th class="py-5 px-8 italic text-right">Status</th>
                     </tr>
                 </thead>
-                <tbody id="bookings-list" class="text-sm">
+                <tbody id="bookings-list" class="text-sm font-semibold">
                     </tbody>
             </table>
         </div>
