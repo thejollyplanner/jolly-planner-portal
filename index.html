@@ -43,7 +43,7 @@
                 <div class="absolute top-0 left-0 w-full h-1.5 bg-tropical-gradient"></div>
                 <h2 class="text-xs font-black uppercase tracking-[0.2em] text-black mb-8 italic">Log New Commission</h2>
                 <form id="bookingForm" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-6 text-sm font-semibold">
-                    <div class="flex flex-col"><label class="text-[9px] text-gray-400 mb-2 uppercase ml-2">Client</label><input id="client_name" type="text" class="bg-gray-50 p-4 rounded-2xl border-none"></div>
+                    <div class="flex flex-col"><label class="text-[9px] text-gray-400 mb-2 uppercase ml-2">Client (Last, First)</label><input id="client_name" type="text" placeholder="Doe, Jane" class="bg-gray-50 p-4 rounded-2xl border-none"></div>
                     <div class="flex flex-col"><label class="text-[9px] text-gray-400 mb-2 uppercase ml-2">Supplier</label><input id="supplier" type="text" class="bg-gray-50 p-4 rounded-2xl border-none"></div>
                     <div class="flex flex-col"><label class="text-[9px] text-gray-400 mb-2 uppercase ml-2">Booking #</label><input id="booking_no" type="text" class="bg-gray-50 p-4 rounded-2xl border-none"></div>
                     <div class="flex flex-col"><label class="text-[9px] text-gray-400 mb-2 uppercase ml-2">Total Comm $</label><input id="amount" type="number" class="bg-gray-50 p-4 rounded-2xl border-none font-bold"></div>
@@ -52,16 +52,30 @@
                 </form>
             </div>
 
-            <div id="admin-controls" class="hidden flex flex-wrap items-center gap-4 mb-6 bg-white p-6 rounded-[2rem] border border-gray-200 shadow-sm">
+            <div class="flex flex-wrap items-end gap-4 mb-6 bg-white p-6 rounded-[2rem] border border-gray-200 shadow-sm">
+                <div class="flex flex-col flex-1 min-w-[200px]">
+                    <label class="text-[9px] font-black text-gray-400 uppercase mb-2 ml-2">Search Client</label>
+                    <input id="search-input" oninput="fetchBookings()" type="text" placeholder="Start typing name..." class="bg-gray-50 p-3 rounded-xl border-none text-xs font-bold outline-none focus:ring-2 focus:ring-red-900">
+                </div>
                 <div class="flex flex-col">
-                    <label class="text-[9px] font-black text-gray-400 uppercase mb-2 ml-2">Tax Year Filter</label>
-                    <select id="year-filter" onchange="fetchBookings()" class="bg-gray-50 p-3 rounded-xl border-none text-xs font-bold">
-                        <option value="all">All Time</option>
-                        <option value="2026" selected>2026 Fiscal</option>
-                        <option value="2025">2025 Fiscal</option>
+                    <label class="text-[9px] font-black text-gray-400 uppercase mb-2 ml-2">Month</label>
+                    <select id="month-filter" onchange="fetchBookings()" class="bg-gray-50 p-3 rounded-xl border-none text-xs font-bold">
+                        <option value="all">All Months</option>
+                        <option value="01">January</option><option value="02">February</option><option value="03">March</option>
+                        <option value="04">April</option><option value="05">May</option><option value="06">June</option>
+                        <option value="07">July</option><option value="08">August</option><option value="09">September</option>
+                        <option value="10">October</option><option value="11">November</option><option value="12">December</option>
                     </select>
                 </div>
                 <div class="flex flex-col">
+                    <label class="text-[9px] font-black text-gray-400 uppercase mb-2 ml-2">Year</label>
+                    <select id="year-filter" onchange="fetchBookings()" class="bg-gray-50 p-3 rounded-xl border-none text-xs font-bold">
+                        <option value="all">All Time</option>
+                        <option value="2026" selected>2026</option>
+                        <option value="2025">2025</option>
+                    </select>
+                </div>
+                <div id="admin-only-toggle" class="hidden flex flex-col">
                     <label class="text-[9px] font-black text-gray-400 uppercase mb-2 ml-2">View Mode</label>
                     <button id="group-toggle" onclick="toggleGrouping()" class="bg-gray-50 p-3 rounded-xl border border-gray-200 text-[10px] font-black uppercase tracking-widest hover:bg-red-50 hover:text-red-900 transition-all"> Group By Agent: OFF </button>
                 </div>
@@ -98,10 +112,11 @@
                 currentAgent = data;
                 document.getElementById('login-screen').style.display = 'none';
                 document.getElementById('portal-content').style.display = 'block';
-                document.getElementById('agent-welcome').innerText = `${data.first_name} ${data.last_name} | ${data.commission_rate * 100}% Split`;
+                // HEADER UPDATE: Hide Split
+                document.getElementById('agent-welcome').innerText = `${data.first_name} ${data.last_name}`;
                 if(email.toLowerCase() === ADMIN_EMAIL.toLowerCase()) {
                     document.getElementById('admin-badge').classList.remove('hidden');
-                    document.getElementById('admin-controls').classList.remove('hidden');
+                    document.getElementById('admin-only-toggle').classList.remove('hidden');
                     document.getElementById('ledger-title').innerText = "Master Agency Ledger";
                     document.getElementById('share-header').innerText = "Agent Payout";
                 }
@@ -130,11 +145,9 @@
         async function saveBooking() {
             const fullName = `${currentAgent.first_name} ${currentAgent.last_name}`;
             await _supabase.from('Bookings').insert([{ 
-                agent_name: fullName, 
-                client_name: document.getElementById('client_name').value, 
+                agent_name: fullName, client_name: document.getElementById('client_name').value, 
                 amount: parseFloat(document.getElementById('amount').value), 
-                travel_date: document.getElementById('travel_date').value, 
-                status: 'Pending',
+                travel_date: document.getElementById('travel_date').value, status: 'Pending',
                 notes: `Supplier: ${document.getElementById('supplier').value} | Ref: ${document.getElementById('booking_no').value}` 
             }]);
             document.getElementById('bookingForm').reset();
@@ -143,14 +156,34 @@
 
         async function fetchBookings() {
             const year = document.getElementById('year-filter').value;
+            const month = document.getElementById('month-filter').value;
+            const search = document.getElementById('search-input').value.toLowerCase();
+            
             let query = _supabase.from('Bookings').select('*');
-            if (year !== 'all') { query = query.gte('travel_date', `${year}-01-01`).lte('travel_date', `${year}-12-31`); }
+            
+            // Year & Month Logic
+            if (year !== 'all') { 
+                if(month === 'all') {
+                    query = query.gte('travel_date', `${year}-01-01`).lte('travel_date', `${year}-12-31`);
+                } else {
+                    query = query.gte('travel_date', `${year}-${month}-01`).lte('travel_date', `${year}-${month}-31`);
+                }
+            }
+
+            // Search by Client Name
+            if (search) {
+                query = query.ilike('client_name', `%${search}%`);
+            }
+
+            // Privacy Filter
             if (currentAgent.email.toLowerCase() !== ADMIN_EMAIL.toLowerCase()) {
                 query = query.eq('agent_name', `${currentAgent.first_name} ${currentAgent.last_name}`);
             }
+
             const { data } = await query.order('agent_name', { ascending: true }).order('created_at', { ascending: false });
             const list = document.getElementById('bookings-list');
             list.innerHTML = ''; let lastAgent = "";
+            
             data.forEach(row => {
                 const isAdmin = currentAgent.email.toLowerCase() === ADMIN_EMAIL.toLowerCase();
                 const isPaid = row.status === 'Paid';
