@@ -52,12 +52,12 @@
             list.innerHTML = ''; 
             data.forEach(row => {
                 list.innerHTML += `
-                    <tr class="border-b border-gray-100 hover:bg-gray-50 transition">
-                        <td class="py-4 px-6 font-bold text-black">${row.agent_name}</td>
-                        <td class="py-4 px-6 text-gray-500">${row.client_name}</td>
-                        <td class="py-4 px-6 font-mono font-bold text-teal-600">$${row.amount}</td>
-                        <td class="py-4 px-6 text-gray-400 text-sm">${row.travel_date}</td>
-                        <td class="py-4 px-6"><span class="bg-sunset text-white text-[10px] font-black px-3 py-1 rounded-full uppercase tracking-tighter">Pending</span></td>
+                    <tr class="border-b border-gray-100 hover:bg-gray-50 transition text-sm">
+                        <td class="py-4 px-8 font-bold text-black">${row.agent_name}</td>
+                        <td class="py-4 px-8 text-gray-500 font-medium">${row.client_name}</td>
+                        <td class="py-4 px-8 font-mono font-bold text-teal-600">$${row.amount}</td>
+                        <td class="py-4 px-8 text-gray-400 font-medium">${row.travel_date}</td>
+                        <td class="py-4 px-8 text-right"><span class="bg-sunset text-white text-[10px] font-black px-4 py-1.5 rounded-full uppercase tracking-widest">Pending</span></td>
                     </tr>
                 `;
             });
@@ -66,7 +66,7 @@
 
     <nav class="bg-black text-white px-8 py-4 flex justify-between items-center shadow-2xl border-b-4 border-teal-400">
         <div class="flex items-center space-x-6">
-            <img src="logo.png" alt="The Jolly Planner Logo" class="h-16 w-auto">
+            <img src="logo.png" alt="The Jolly Planner Logo" class="h-16 w-auto object-contain">
             <div class="hidden md:block border-l border-gray-800 pl-6">
                 <div class="text-xl font-black uppercase tracking-tighter italic">The Jolly <span class="accent-teal">Planner</span></div>
                 <div class="text-[10px] uppercase tracking-[0.3em] text-gray-500 font-bold">Admin Command Center</div>
@@ -78,19 +78,29 @@
     </nav>
 
     <main class="p-8 max-w-6xl mx-auto">
-        <div class="bg-white p-8 rounded-[2.5rem] shadow-sm border border-gray-200 mb-10 relative overflow-hidden">
+        <div class="bg-white p-10 rounded-[2.5rem] shadow-sm border border-gray-200 mb-10 relative overflow-hidden">
             <div class="absolute top-0 left-0 w-full h-1.5 bg-tropical"></div>
-            <div class="flex items-center space-x-2 mb-8">
-                <h2 class="text-xs font-black uppercase tracking-[0.2em] text-black">Log New Commission</h2>
-            </div>
+            <h2 class="text-xs font-black uppercase tracking-[0.2em] text-black mb-8">Log New Commission</h2>
             
-            <form id="bookingForm" class="grid grid-cols-1 md:grid-cols-5 gap-6">
-                <div class="flex flex-col"><label class="text-[9px] font-black text-gray-400 mb-2 uppercase ml-2">Agent Name</label><input id="agent_name" type="text" placeholder="Who logged it?" class="bg-gray-50 p-4 rounded-2xl outline-none focus:ring-2 focus:ring-teal-400 border-none text-sm font-semibold"></div>
-                <div class="flex flex-col"><label class="text-[9px] font-black text-gray-400 mb-2 uppercase ml-2">Client Name</label><input id="client_name" type="text" placeholder="Traveler Name" class="bg-gray-50 p-4 rounded-2xl outline-none focus:ring-2 focus:ring-teal-400 border-none text-sm font-semibold"></div>
-                <div class="flex flex-col"><label class="text-[9px] font-black text-gray-400 mb-2 uppercase ml-2">Commission $</label><input id="amount" type="number" placeholder="0.00" class="bg-gray-50 p-4 rounded-2xl outline-none focus:ring-2 focus:ring-teal-400 border-none text-sm font-mono font-bold"></div>
-                <div class="flex flex-col"><label class="text-[9px] font-black text-gray-400 mb-2 uppercase ml-2">Travel Date</label><input id="travel_date" type="date" class="bg-gray-50 p-4 rounded-2xl outline-none focus:ring-2 focus:ring-teal-400 border-none text-sm text-gray-500 font-semibold"></div>
+            <form id="bookingForm" class="grid grid-cols-1 md:grid-cols-5 gap-6 text-sm font-semibold">
+                <div class="flex flex-col">
+                    <label class="text-[9px] font-black text-gray-400 mb-2 uppercase ml-2">Agent Name</label>
+                    <input id="agent_name" type="text" placeholder="Who logged it?" class="bg-gray-50 p-4 rounded-2xl outline-none focus:ring-2 focus:ring-teal-400 border-none">
+                </div>
+                <div class="flex flex-col">
+                    <label class="text-[9px] font-black text-gray-400 mb-2 uppercase ml-2">Client Name</label>
+                    <input id="client_name" type="text" placeholder="Traveler Name" class="bg-gray-50 p-4 rounded-2xl outline-none focus:ring-2 focus:ring-teal-400 border-none">
+                </div>
+                <div class="flex flex-col">
+                    <label class="text-[9px] font-black text-gray-400 mb-2 uppercase ml-2">Commission $</label>
+                    <input id="amount" type="number" placeholder="0.00" class="bg-gray-50 p-4 rounded-2xl outline-none focus:ring-2 focus:ring-teal-400 border-none font-mono font-bold text-base">
+                </div>
+                <div class="flex flex-col">
+                    <label class="text-[9px] font-black text-gray-400 mb-2 uppercase ml-2">Travel Date</label>
+                    <input id="travel_date" type="date" class="bg-gray-50 p-4 rounded-2xl outline-none focus:ring-2 focus:ring-teal-400 border-none text-gray-500">
+                </div>
                 <div class="flex flex-col justify-end">
-                    <button type="button" onclick="saveBooking()" class="bg-black text-white font-black py-4 rounded-2xl hover:bg-teal-500 transition-all shadow-xl uppercase text-[10px] tracking-[0.2em]">
+                    <button type="button" onclick="saveBooking()" class="bg-black text-white font-black py-4 rounded-2xl hover:bg-teal-500 hover:scale-[1.02] active:scale-95 transition-all shadow-xl uppercase text-[10px] tracking-[0.2em]">
                         Submit Log
                     </button>
                 </div>
@@ -100,22 +110,22 @@
         <div class="bg-white rounded-[2.5rem] shadow-sm border border-gray-200 overflow-hidden">
             <div class="p-8 border-b border-gray-50 flex justify-between items-center bg-gray-50/30">
                 <h3 class="text-[11px] font-black uppercase tracking-[0.2em] text-gray-400">Master Commission Ledger</h3>
-                <div class="flex items-center space-x-2">
+                <div class="flex items-center space-x-2 text-[10px] font-bold text-gray-400 uppercase tracking-widest">
                     <span class="w-2 h-2 bg-teal-400 rounded-full animate-pulse"></span>
-                    <span class="text-[10px] font-bold text-gray-400 uppercase tracking-widest">Live Sync</span>
+                    <span>Live Sync</span>
                 </div>
             </div>
             <table class="w-full text-left">
                 <thead class="bg-white text-[10px] uppercase tracking-widest font-black text-gray-400 border-b border-gray-50">
                     <tr>
-                        <th class="py-5 px-8 italic">Agent</th>
+                        <th class="py-5 px-8">Agent</th>
                         <th class="py-5 px-8">Client</th>
-                        <th class="py-5 px-8 italic">Amount</th>
+                        <th class="py-5 px-8">Amount</th>
                         <th class="py-5 px-8">Date</th>
-                        <th class="py-5 px-8 italic text-right">Status</th>
+                        <th class="py-5 px-8 text-right">Status</th>
                     </tr>
                 </thead>
-                <tbody id="bookings-list" class="text-sm font-semibold">
+                <tbody id="bookings-list">
                     </tbody>
             </table>
         </div>
