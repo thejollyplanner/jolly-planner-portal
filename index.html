@@ -12,7 +12,7 @@
         body { font-family: 'Montserrat', sans-serif; background-color: #e5e5e5; }
         .bg-maroon { background-color: #800000; }
         .bg-section-gray { background-color: #333333; } 
-        .text-gold { color: #D4AF37; } /* Weathered Pirate Gold */
+        .text-gold { color: #D4AF37; } 
         .bg-gold { background-color: #D4AF37; }
         .border-gold { border-color: #D4AF37; }
         .bg-pirate-gradient { background: linear-gradient(135deg, #800000 0%, #D4AF37 100%); }
@@ -148,9 +148,133 @@
         async function attemptLogin() {
             const email = document.getElementById('login_email').value.trim();
             const pass = document.getElementById('login_pass').value.trim();
-            const { data } = await _supabase.from('Agents').select('*').eq('email', email).eq('password', pass).single();
+            const { data, error } = await _supabase.from('Agents').select('*').eq('email', email).eq('password', pass).single();
             if (data) {
                 currentAgent = data; initYearFilter();
                 document.getElementById('login-screen').style.display = 'none';
                 document.getElementById('portal-content').style.display = 'block';
-                document.getElementById('agent-welcome').innerText
+                document.getElementById('agent-welcome').innerText = `${data.first_name} ${data.last_name}`;
+                if(email.toLowerCase() === ADMIN_EMAIL.toLowerCase()) {
+                    document.getElementById('admin-revenue-box').classList.remove('hidden');
+                    document.getElementById('agency-col-head').classList.remove('hidden');
+                    document.getElementById('payout-label').innerText = "Total Agent Payouts";
+                }
+                fetchBookings();
+            } else { alert("Login failed. Check your email and keycode."); console.log(error); }
+        }
+
+        function setStatusFilter(status) {
+            selectedStatus = status;
+            document.querySelectorAll('.status-btn').forEach(b => b.classList.remove('active'));
+            document.getElementById(`btn-${status}`).classList.add('active');
+            fetchBookings();
+        }
+
+        async function saveBooking() {
+            const { error } = await _supabase.from('Bookings').insert([{ 
+                agent_name: `${currentAgent.first_name} ${currentAgent.last_name}`, 
+                client_name: document.getElementById('client_name').value, 
+                amount: parseFloat(document.getElementById('amount').value), 
+                travel_date: document.getElementById('travel_date').value, 
+                status: 'Pending',
+                notes: `Supplier: ${document.getElementById('supplier').value} | ${document.getElementById('notes').value}`,
+                booking_no: document.getElementById('booking_no').value
+            }]);
+            if (!error) { document.getElementById('bookingForm').reset(); fetchBookings(); }
+        }
+
+        async function updateStatus(id, newStatus) {
+            const msg = newStatus === 'Pending' ? "Undo 'Paid' status?" : `Mark as Paid?`;
+            if(confirm(msg)) { await _supabase.from('Bookings').update({ status: newStatus }).eq('id', id); fetchBookings(); }
+        }
+
+        async function deleteBooking(id) {
+            if(confirm("Permanently delete this scallywag's log?")) { await _supabase.from('Bookings').delete().eq('id', id); fetchBookings(); }
+        }
+
+        function showDetails(id) {
+            const booking = globalData.find(b => b.id === id); if (!booking) return;
+            const body = document.getElementById('modal-body');
+            const supplierMatch = booking.notes ? booking.notes.match(/Supplier: (.*?) \|/) : null;
+            const supplier = supplierMatch ? supplierMatch[1] : "Not Specified";
+            const actualNotes = booking.notes ? booking.notes.split('|').pop().trim() : "No notes.";
+
+            body.innerHTML = `
+                <div class="grid grid-cols-2 gap-8">
+                    <div><p class="text-[9px] text-gray-400 uppercase tracking-widest">Client</p><p class="font-bold text-lg italic underline decoration-gold"> ${booking.client_name}</p></div>
+                    <div><p class="text-[9px] text-gray-400 uppercase tracking-widest">Supplier</p><p class="font-bold text-lg">${supplier}</p></div>
+                    <div><p class="text-[9px] text-gray-400 uppercase tracking-widest">Conf #</p><p class="font-bold text-lg text-gold">${booking.booking_no || 'N/A'}</p></div>
+                    <div><p class="text-[9px] text-gray-400 uppercase tracking-widest">Voyage Date</p><p class="font-bold text-lg">${booking.travel_date}</p></div>
+                </div>
+                <div class="pt-8 border-t border-white/10">
+                    <p class="text-[9px] text-gray-400 uppercase tracking-widest mb-3">Captain's Log</p>
+                    <p class="bg-black/30 p-6 rounded-2xl italic text-gray-300 leading-relaxed border-l-4 border-gold">" ${actualNotes}"</p>
+                </div>`;
+            document.getElementById('details-modal').style.display = 'block';
+        }
+
+        function closeModal() { document.getElementById('details-modal').style.display = 'none'; }
+
+        async function fetchBookings() {
+            const year = document.getElementById('year-filter').value;
+            const search = document.getElementById('search-input').value.toLowerCase();
+            let query = _supabase.from('Bookings').select('*');
+            if (year !== 'all') { query = query.gte('travel_date', `${year}-01-01`).lte('travel_date', `${year}-12-31`); }
+            if (selectedStatus !== 'all') { query = query.eq('status', selectedStatus); }
+            if (currentAgent.email.toLowerCase() !== ADMIN_EMAIL.toLowerCase()) { query = query.eq('agent_name', `${currentAgent.first_name} ${currentAgent.last_name}`); }
+            if (search) { query = query.or(`client_name.ilike.%${search}%,booking_no.ilike.%${search}%`); }
+            const { data } = await query.order('created_at', { ascending: false });
+            globalData = data;
+            const { data: agentData } = await _supabase.from('Agents').select('first_name, last_name, commission_rate');
+            updateDashboard(data, agentData); renderLedger(data, agentData);
+        }
+
+        function renderLedger(data, agentData) {
+            const list = document.getElementById('bookings-list'); list.innerHTML = '';
+            const isAdmin = currentAgent.email.toLowerCase() === ADMIN_EMAIL.toLowerCase();
+
+            data.forEach(row => {
+                const agent = agentData.find(a => `${a.first_name} ${a.last_name}` === row.agent_name);
+                const rate = agent ? agent.commission_rate : 0.7;
+                const agentPayout = (row.amount * rate).toFixed(2);
+                const agencyShare = (row.amount * (1 - rate)).toFixed(2);
+                const isPaid = row.status === 'Paid';
+
+                let actionHtml = '';
+                if(isPaid) {
+                    actionHtml = `<span class="bg-green-500 text-white text-[9px] font-black px-4 py-2 rounded-full uppercase mr-3">Paid</span>`;
+                    if(isAdmin) actionHtml += `<button onclick="updateStatus(${row.id}, 'Pending')" class="text-[9px] text-gray-400 hover:text-gold font-bold uppercase underline mr-4">Undo</button>`;
+                } else if(isAdmin) {
+                    actionHtml = `<button onclick="updateStatus(${row.id}, 'Paid')" class="bg-green-600 text-white text-[9px] font-black px-4 py-2 rounded-full uppercase hover:bg-black mr-4 shadow-md transition">Mark Paid</button>`;
+                    actionHtml += `<button onclick="deleteBooking(${row.id})" class="text-[9px] text-gray-400 hover:text-red-600 font-bold uppercase mr-4">Delete</button>`;
+                } else {
+                    actionHtml = `<span class="bg-gold text-black text-[9px] font-black px-4 py-2 rounded-full uppercase mr-4 italic">${row.status}</span>`;
+                }
+                actionHtml += `<button onclick="showDetails(${row.id})" class="text-[10px] font-black text-maroon hover:text-gold uppercase tracking-widest">Details</button>`;
+
+                list.innerHTML += `<tr class="border-b border-gray-100 text-sm hover:bg-gray-50 transition"><td class="py-6 px-10 font-black italic underline decoration-maroon decoration-2 underline-offset-4">${row.agent_name}</td><td class="py-6 px-10 text-gray-600 font-bold">${row.client_name}</td><td class="py-6 px-10 font-mono font-bold">$${row.amount}</td><td class="py-6 px-10 font-mono text-green-700 font-bold">$${agentPayout}</td>${isAdmin ? `<td class="py-6 px-10 font-mono text-gold font-bold bg-gray-50/50">$${agencyShare}</td>` : ''}<td class="py-6 px-10 text-right flex items-center justify-end">${actionHtml}</td></tr>`;
+            });
+        }
+
+        function updateDashboard(data, agentData) {
+            const months = Array(12).fill(0); let totalAgentPayout = 0; let totalAgencyRevenue = 0; let active = 0;
+            const isAdminView = currentAgent.email.toLowerCase() === ADMIN_EMAIL.toLowerCase();
+            data.forEach(row => {
+                const date = new Date(row.travel_date);
+                const agent = agentData.find(a => `${a.first_name} ${a.last_name}` === row.agent_name);
+                const rate = agent ? agent.commission_rate : 0.7;
+                const agentPayout = row.amount * rate; const agencyShare = row.amount * (1 - rate);
+                months[date.getMonth()] += isAdminView ? (agentPayout + agencyShare) : agentPayout;
+                if(row.status === 'Paid') { totalAgentPayout += agentPayout; totalAgencyRevenue += agencyShare; }
+                if(row.status === 'Pending') active++;
+            });
+            document.getElementById('total-payout').innerText = `$${totalAgentPayout.toLocaleString(undefined, {minimumFractionDigits: 2})}`;
+            document.getElementById('agency-revenue').innerText = `$${totalAgencyRevenue.toLocaleString(undefined, {minimumFractionDigits: 2})}`;
+            document.getElementById('active-count').innerText = active;
+            if (myChart) myChart.destroy();
+            const ctx = document.getElementById('earningsChart').getContext('2d');
+            myChart = new Chart(ctx, { type: 'bar', data: { labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'], datasets: [{ label: isAdminView ? 'Total Gross Commission' : 'Your Payout', data: months, backgroundColor: '#D4AF37', borderRadius: 10 }] }, options: { maintainAspectRatio: false, plugins: { legend: { display: false } }, scales: { y: { beginAtZero: true, grid: { color: 'rgba(255,255,255,0.05)' }, ticks: { color: '#9ca3af' } }, x: { grid: { display: false }, ticks: { color: '#9ca3af' } } } } });
+        }
+    </script>
+</body>
+</html>
