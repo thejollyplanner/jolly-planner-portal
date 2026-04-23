@@ -8,10 +8,10 @@
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Playfair+Display+SC:ital,wght@0,900;1,900&family=Inter:wght@400;600;800&display=swap');
+        @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,900;1,900&family=Inter:wght@400;600;800&display=swap');
         
         body { font-family: 'Inter', sans-serif; background-color: #f1f5f9; }
-        h1, h2, h3, h4, .serif { font-family: 'Playfair Display SC', serif; }
+        h1, h2, h3, h4, .serif { font-family: 'Playfair Display', serif; }
         
         .bg-maroon { background-color: #800000; }
         .bg-obsidian { background-color: #1a1a1a; } 
@@ -53,7 +53,7 @@
 
     <div id="login-screen" class="fixed inset-0 bg-obsidian z-50 flex items-center justify-center p-6">
         <div class="bg-white p-12 rounded-lg bold-border shadow-2xl max-w-md w-full text-center">
-            <img src="logo.png" alt="Logo" class="h-20 w-auto mx-auto mb-8">
+            <img src="logo.png" alt="Logo" class="h-60 w-auto mx-auto mb-8">
             <h1 class="text-3xl font-black mb-2 italic">Agent Portal</h1>
             <p class="text-slate-400 text-[10px] font-bold uppercase tracking-[0.2em] mb-10 italic">The Jolly Planner Host Agency</p>
             <input id="login_email" type="email" placeholder="Email Address" class="w-full input-field bold-border p-4 mb-4 text-sm font-bold">
@@ -65,9 +65,9 @@
     <div id="portal-content">
         <nav class="bg-maroon text-white px-10 pt-4 flex flex-col shadow-xl border-b-4 border-black">
             <div class="flex justify-between items-center mb-4">
-                <div class="flex items-center space-x-4">
-                    <img src="logo.png" alt="Logo" class="h-10 w-auto bg-white p-1 rounded bold-border">
-                    <div class="text-2xl font-black italic">The Jolly Planner</div>
+                <div class="flex items-center space-x-6">
+                    <img src="logo.png" alt="Logo" class="h-28 w-auto bg-white p-2 rounded bold-border">
+                    <div class="text-3xl font-black italic">The Jolly Planner</div>
                 </div>
                 <div class="flex items-center space-x-6">
                     <div id="payday-tracker" class="hidden text-right border-r-2 border-white/20 pr-6">
@@ -88,12 +88,12 @@
             <div id="tab-deck" class="tab-content active">
                 <div class="grid grid-cols-1 lg:grid-cols-3 gap-8 mb-12">
                     <div class="bg-white p-8 rounded-lg shadow-sm bold-border">
-                        <h2 class="text-xs font-bold uppercase tracking-widest text-slate-400 mb-6">🌴 Revenue Performance</h2>
+                        <h2 class="text-xl font-black italic text-slate-800 mb-6">🌴 Revenue Performance</h2>
                         <div class="h-48"><canvas id="earningsChart"></canvas></div>
                     </div>
                     <div class="bg-maroon p-8 rounded-lg shadow-xl text-white flex flex-col justify-center bold-border">
                         <p id="payout-label" class="text-[10px] font-bold uppercase tracking-widest opacity-80 mb-2">Total Payouts</p>
-                        <h3 id="total-payout" class="text-3xl font-black italic">$0.00</h3>
+                        <h3 class="text-3xl font-black italic">$<span id="total-payout">0.00</span></h3>
                         <div id="admin-revenue-box" class="hidden mt-6 pt-6 border-t-2 border-white/20">
                             <p class="text-[10px] font-bold uppercase tracking-widest text-slate-300 mb-2">Agency Net (30%)</p>
                             <h4 id="agency-revenue" class="text-xl font-black italic text-white">$0.00</h4>
@@ -106,7 +106,7 @@
                 </div>
 
                 <div class="bg-white p-10 rounded-lg shadow-sm bold-border mb-12">
-                    <h2 class="text-lg font-black italic text-maroon mb-8">🌴 Log New Commission</h2>
+                    <h2 class="text-2xl font-black italic text-maroon mb-8">🌴 Log New Commission</h2>
                     <form id="bookingForm" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 text-sm font-bold">
                         <div class="flex flex-col"><label class="text-[10px] font-bold text-slate-400 mb-2 uppercase">Client Name</label><input id="client_name" type="text" class="input-field bold-border p-3"></div>
                         <div class="flex flex-col"><label class="text-[10px] font-bold text-slate-400 mb-2 uppercase">Supplier</label>
@@ -149,7 +149,7 @@
                     
                     <div class="lg:col-span-1 space-y-10">
                         <div class="bg-white p-8 rounded-lg bold-border shadow-sm">
-                            <h2 class="text-lg font-black italic text-maroon mb-6 border-b-2 border-black pb-2">⚓ The Quartermaster's Log</h2>
+                            <h2 class="text-2xl font-black italic text-maroon mb-6 border-b-2 border-black pb-2">⚓ The Quartermaster's Log</h2>
                             <div class="space-y-6 text-sm">
                                 <div>
                                     <h4 class="font-black text-[10px] uppercase text-slate-500 mb-2">Commission Levels</h4>
@@ -162,11 +162,7 @@
                                 </div>
                                 <div class="pt-4 border-t border-slate-100">
                                     <h4 class="font-black text-[10px] uppercase text-slate-500 mb-2">CLIA Benefits</h4>
-                                    <p class="text-xs text-slate-600 leading-relaxed italic">Once paid $600+ in a calendar year, you are eligible for the Individual Agent CLIA Card (~$139) for travel discounts.</p>
-                                </div>
-                                <div class="pt-4 border-t border-slate-100">
-                                    <h4 class="font-black text-[10px] uppercase text-slate-500 mb-2">Gmail Tips</h4>
-                                    <p class="text-xs text-slate-600 italic">"Star your supplier confirmations and label them 'COMMISSION' for easy manifest logging."</p>
+                                    <p class="text-xs text-slate-600 leading-relaxed italic">Once paid $600+ in a calendar year, you are eligible for the Individual Agent CLIA Card (~$139).</p>
                                 </div>
                             </div>
                         </div>
@@ -174,15 +170,14 @@
 
                     <div class="lg:col-span-1 space-y-8">
                         <div class="bg-white p-8 rounded-lg bold-border shadow-sm">
-                            <h2 class="text-lg font-black italic text-maroon mb-8 border-b-2 border-black pb-2">🌴 The Merchant's Row</h2>
+                            <h2 class="text-2xl font-black italic text-maroon mb-8 border-b-2 border-black pb-2">🌴 The Merchant's Row</h2>
                             <div class="space-y-4">
                                 <div class="vendor-card">
                                     <div class="vendor-tooltip text-[10px] font-bold space-y-2">
                                         <p class="text-maroon uppercase italic">CruisingPower Briefing</p>
-                                        <p>Brands: Royal Caribbean, Celebrity, Silversea</p>
                                         <p>CLIA: <span class="bg-white text-black px-1 font-mono">00847663</span></p>
                                     </div>
-                                    <a href="https://www.cruisingpower.com/" target="_blank" class="flex justify-between items-center p-4 bg-slate-50 rounded bold-border hover:bg-maroon hover:text-white transition-all group">
+                                    <a href="https://www.cruisingpower.com/" target="_blank" class="flex justify-between items-center p-4 bg-slate-50 rounded bold-border hover:bg-maroon hover:text-white transition-all">
                                         <span class="font-bold uppercase text-[10px] tracking-widest">CruisingPower</span>
                                         <span>→</span>
                                     </a>
@@ -191,20 +186,9 @@
                                     <div class="vendor-tooltip text-[10px] font-bold space-y-2">
                                         <p class="text-maroon uppercase italic">Disney Portal Briefing</p>
                                         <p>CLIA: <span class="bg-white text-black px-1 font-mono">00847663</span></p>
-                                        <p>Note: Set up individual profile after agency approval.</p>
                                     </div>
-                                    <a href="https://www.disneytravelagents.com/" target="_blank" class="flex justify-between items-center p-4 bg-slate-50 rounded bold-border hover:bg-maroon hover:text-white transition-all group">
+                                    <a href="https://www.disneytravelagents.com/" target="_blank" class="flex justify-between items-center p-4 bg-slate-50 rounded bold-border hover:bg-maroon hover:text-white transition-all">
                                         <span class="font-bold uppercase text-[10px] tracking-widest">Disney Travel Agents</span>
-                                        <span>→</span>
-                                    </a>
-                                </div>
-                                <div class="vendor-card">
-                                    <div class="vendor-tooltip text-[10px] font-bold space-y-2">
-                                        <p class="text-maroon uppercase italic">Expedia TAAP Briefing</p>
-                                        <p>CLIA: <span class="bg-white text-black px-1 font-mono">00847663</span></p>
-                                    </div>
-                                    <a href="https://www.expedia.com/TAAP-Registration" target="_blank" class="flex justify-between items-center p-4 bg-slate-50 rounded bold-border hover:bg-maroon hover:text-white transition-all group">
-                                        <span class="font-bold uppercase text-[10px] tracking-widest">Expedia TAAP</span>
                                         <span>→</span>
                                     </a>
                                 </div>
@@ -214,23 +198,15 @@
 
                     <div class="lg:col-span-1 space-y-10">
                         <div class="bg-obsidian p-8 rounded-lg bold-border shadow-xl text-white">
-                            <h2 class="text-lg font-black italic text-slate-300 mb-6 border-b-2 border-white/20 pb-2">🌴 The Captain's Code</h2>
+                            <h2 class="text-2xl font-black italic text-slate-300 mb-6 border-b-2 border-white/20 pb-2">🌴 The Captain's Code</h2>
                             <div class="space-y-6">
                                 <div>
                                     <h4 class="text-[9px] font-black uppercase tracking-widest text-maroon bg-white inline-block px-2 py-0.5 mb-2">Payout Schedule</h4>
                                     <p class="text-[11px] text-slate-300 italic leading-relaxed">"You are paid on the first pay day after the agency has received the funds and the client has traveled."</p>
                                 </div>
-                                <div>
-                                    <h4 class="text-[9px] font-black uppercase tracking-widest text-maroon bg-white inline-block px-2 py-0.5 mb-2">Protected Commission</h4>
-                                    <p class="text-[11px] text-slate-300 italic leading-relaxed">"If a client cancels and the vendor protects commission, it will be paid out as normal once the agency receives it."</p>
-                                </div>
-                                <div>
-                                    <h4 class="text-[9px] font-black uppercase tracking-widest text-maroon bg-white inline-block px-2 py-0.5 mb-2">Booking Transfers</h4>
-                                    <p class="text-[11px] text-slate-300 italic leading-relaxed">"Bookings made directly by clients can be transferred to the agency within 30 days of booking (excluding Disney)."</p>
-                                </div>
-                                <div class="pt-6 border-t border-white/10">
+                                <div class="pt-6 border-t border-white/10 text-center">
                                     <p class="text-[9px] font-bold uppercase text-slate-500 mb-2 tracking-widest">Agency Credentials</p>
-                                    <p class="text-xl font-black text-white italic font-mono">CLIA: 00847663</p>
+                                    <p class="text-2xl font-black text-white italic font-mono tracking-wider">CLIA: 00847663</p>
                                 </div>
                             </div>
                         </div>
@@ -277,7 +253,6 @@
                 if(email.toLowerCase() === ADMIN_EMAIL.toLowerCase()) {
                     document.getElementById('admin-revenue-box').classList.remove('hidden');
                     document.getElementById('agency-col-head').classList.remove('hidden');
-                    document.getElementById('payout-label').innerText = "Agent Payouts";
                 } else { document.getElementById('payday-tracker').classList.remove('hidden'); }
                 fetchBookings();
             } else { alert("Access Denied Scallywag."); }
@@ -296,7 +271,7 @@
         }
 
         async function updateStatus(id, newStatus) { if(confirm(`Confirm ${newStatus}?`)) { await _supabase.from('Bookings').update({ status: newStatus }).eq('id', id); fetchBookings(); } }
-        async function deleteBooking(id) { if(confirm("Remove this record?")) { await _supabase.from('Bookings').delete().eq('id', id); fetchBookings(); } }
+        async function deleteBooking(id) { if(confirm("Remove record?")) { await _supabase.from('Bookings').delete().eq('id', id); fetchBookings(); } }
 
         function showDetails(id) {
             const booking = globalData.find(b => b.id === id); if (!booking) return;
@@ -333,7 +308,7 @@
                 const isPaid = row.status === 'Paid';
                 let actionHtml = `<div class="flex items-center justify-end space-x-3">`;
                 if(isPaid) {
-                    actionHtml += `<span class="text-[9px] font-bold text-green-600 bg-green-50 px-3 py-1 rounded uppercase bold-border">Paid</span>`;
+                    actionHtml += `<span class="text-[9px] font-bold text-green-600 bg-green-50 px-3 py-1 rounded bold-border uppercase">Paid</span>`;
                     if(isAdmin) actionHtml += `<button onclick="updateStatus(${row.id}, 'Pending')" class="text-[9px] text-slate-400 hover:text-maroon underline font-bold">Undo</button>`;
                 } else if(isAdmin) {
                     actionHtml += `<button onclick="updateStatus(${row.id}, 'Paid')" class="bg-maroon text-white text-[9px] font-bold px-4 py-1.5 rounded hover:bg-black bold-border">Mark Paid</button>`;
@@ -366,7 +341,7 @@
                 if(row.status === 'Paid') { totalAgentPayout += agentPayout; totalAgencyRevenue += agencyShare; }
                 if(row.status === 'Pending') { active++; if (travelDate >= pStart && travelDate <= pEnd) estPayoutSum += agentPayout; }
             });
-            document.getElementById('total-payout').innerText = `$${totalAgentPayout.toLocaleString(undefined, {minimumFractionDigits: 2})}`;
+            document.getElementById('total-payout').innerText = totalAgentPayout.toLocaleString(undefined, {minimumFractionDigits: 2});
             document.getElementById('agency-revenue').innerText = `$${totalAgencyRevenue.toLocaleString(undefined, {minimumFractionDigits: 2})}`;
             document.getElementById('active-count').innerText = active;
             if (!isAdminView) {
