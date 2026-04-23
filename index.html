@@ -341,6 +341,7 @@
                 const agentPayout = (row.amount * rate).toFixed(2);
                 const agencyShare = (row.amount * (1 - rate)).toFixed(2);
                 const isPaid = row.status === 'Paid';
+                
                 let actionHtml = `<div class="flex items-center justify-end space-x-3">`;
                 if(isPaid) {
                     actionHtml += `<span class="text-[9px] font-bold text-green-600 bg-green-50 px-3 py-1 rounded-full uppercase bold-border">Paid</span>`;
@@ -348,7 +349,13 @@
                 } else if(isAdmin) {
                     actionHtml += `<button onclick="updateStatus(${row.id}, 'Paid')" class="bg-maroon text-white text-[9px] font-bold px-4 py-1.5 rounded hover:bg-black bold-border">Mark Paid</button>`;
                     actionHtml += `<button onclick="deleteBooking(${row.id})" class="text-[9px] text-slate-400 hover:text-red-600 font-bold">Remove</button>`;
-                } else { actionHtml += `<span class="text-[9px] font-bold text-slate-400 bg-slate-100 px-3 py-1 rounded-full uppercase bold-border">${row.status}</span>`; }
+                } else { 
+                    actionHtml += `<span class="text-[9px] font-bold text-slate-400 bg-slate-100 px-3 py-1 rounded-full uppercase bold-border">${row.status}</span>`; 
+                    // Restoration: Agents can remove their own Pending bookings
+                    if (!isAdmin && row.agent_name === `${currentAgent.first_name} ${currentAgent.last_name}`) {
+                        actionHtml += `<button onclick="deleteBooking(${row.id})" class="text-[9px] text-slate-400 hover:text-red-600 font-bold">Cancel</button>`;
+                    }
+                }
                 actionHtml += `<button onclick="showDetails(${row.id})" class="text-[9px] font-bold text-maroon hover:underline">Details</button></div>`;
                 list.innerHTML += `<tr class="border-b hover:bg-slate-50 transition"><td class="py-4 px-8 font-semibold">${row.agent_name}</td><td class="py-4 px-8 text-slate-500">${row.client_name}</td><td class="py-4 px-8 font-bold text-slate-700">$${row.amount}</td><td class="py-4 px-8 font-bold text-green-600">$${agentPayout}</td>${isAdmin ? `<td class="py-4 px-8 font-bold text-slate-400">$${agencyShare}</td>` : ''}<td class="py-4 px-8 text-right">${actionHtml}</td></tr>`;
             });
