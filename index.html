@@ -88,7 +88,7 @@
                     <div class="flex flex-col">
                         <label class="text-[9px] font-black text-gray-300 uppercase mb-2 ml-2">Filter Year</label>
                         <select id="year-filter" onchange="fetchBookings()" class="input-field p-3 rounded-xl text-xs font-bold">
-                            </select>
+                        </select>
                     </div>
 
                     <div class="flex flex-col">
@@ -109,7 +109,7 @@
                             <th class="py-5 px-8">Agent</th><th class="py-5 px-8">Client</th><th class="py-5 px-8">Total Comm</th>
                             <th class="py-5 px-8">Agent Split</th>
                             <th id="agency-col-head" class="py-5 px-8 hidden text-orange-600">Agency Share</th>
-                            <th class="py-5 px-8 text-right">Status</th>
+                            <th class="py-5 px-8 text-right">Status / Actions</th>
                         </tr>
                     </thead>
                     <tbody id="bookings-list"></tbody>
@@ -127,13 +127,11 @@
         let selectedStatus = 'all';
         let myChart = null;
 
-        // Automatically populate year dropdown
         function initYearFilter() {
             const yearSelect = document.getElementById('year-filter');
             const currentYear = new Date().getFullYear();
-            const startYear = 2025; // Never show years before your agency started
-            const endYear = currentYear + 2; // Show up to 2 years in advance for bookings
-            
+            const startYear = 2025; 
+            const endYear = currentYear + 2; 
             let options = `<option value="all">All Time</option>`;
             for (let y = endYear; y >= startYear; y--) {
                 options += `<option value="${y}" ${y === currentYear ? 'selected' : ''}>${y}</option>`;
@@ -147,7 +145,7 @@
             const { data } = await _supabase.from('Agents').select('*').eq('email', email).eq('password', pass).single();
             if (data) {
                 currentAgent = data;
-                initYearFilter(); // Build the years once logged in
+                initYearFilter();
                 document.getElementById('login-screen').style.display = 'none';
                 document.getElementById('portal-content').style.display = 'block';
                 document.getElementById('agent-welcome').innerText = `${data.first_name} ${data.last_name}`;
@@ -181,22 +179,30 @@
         }
 
         async function updateStatus(id, newStatus) {
-            await _supabase.from('Bookings').update({ status: newStatus }).eq('id', id);
-            fetchBookings();
+            const msg = newStatus === 'Pending' ? "Undo 'Paid' status?" : `Mark as ${newStatus}?`;
+            if(confirm(msg)) {
+                await _supabase.from('Bookings').update({ status: newStatus }).eq('id', id);
+                fetchBookings();
+            }
+        }
+
+        async function deleteBooking(id) {
+            if(confirm("Permanently delete this booking log?")) {
+                await _supabase.from('Bookings').delete().eq('id', id);
+                fetchBookings();
+            }
         }
 
         async function fetchBookings() {
             const year = document.getElementById('year-filter').value;
             const search = document.getElementById('search-input').value.toLowerCase();
             let query = _supabase.from('Bookings').select('*');
-            
             if (year !== 'all') { query = query.gte('travel_date', `${year}-01-01`).lte('travel_date', `${year}-12-31`); }
             if (selectedStatus !== 'all') { query = query.eq('status', selectedStatus); }
             if (currentAgent.email.toLowerCase() !== ADMIN_EMAIL.toLowerCase()) {
                 query = query.eq('agent_name', `${currentAgent.first_name} ${currentAgent.last_name}`);
             }
             if (search) { query = query.or(`client_name.ilike.%${search}%,booking_no.ilike.%${search}%`); }
-
             const { data } = await query.order('created_at', { ascending: false });
             const { data: agentData } = await _supabase.from('Agents').select('first_name, last_name, commission_rate');
             updateDashboard(data, agentData);
@@ -215,9 +221,15 @@
                 const agencyShare = (row.amount * (1 - rate)).toFixed(2);
                 const isPaid = row.status === 'Paid';
 
-                let actionHtml = `<span class="${isPaid ? 'bg-green-500' : 'bg-orange-400'} text-white text-[9px] font-black px-4 py-1.5 rounded-full uppercase">${row.status}</span>`;
-                if(isAdmin && !isPaid) {
-                    actionHtml = `<button onclick="updateStatus(${row.id}, 'Paid')" class="bg-green-500 text-white text-[9px] font-black px-4 py-1.5 rounded-full uppercase">Mark Paid</button>`;
+                let actionHtml = '';
+                if(isPaid) {
+                    actionHtml = `<span class="bg-green-500 text-white text-[9px] font-black px-4 py-1.5 rounded-full uppercase mr-2">Paid</span>`;
+                    if(isAdmin) actionHtml += `<button onclick="updateStatus(${row.id}, 'Pending')" class="text-[9px] text-gray-400 hover:text-red-600 font-bold uppercase underline">Undo</button>`;
+                } else if(isAdmin) {
+                    actionHtml = `<button onclick="updateStatus(${row.id}, 'Paid')" class="bg-green-500 text-white text-[9px] font-black px-4 py-1.5 rounded-full uppercase hover:bg-green-600 mr-4 shadow-sm">Mark Paid</button>`;
+                    actionHtml += `<button onclick="deleteBooking(${row.id})" class="text-[9px] text-gray-400 hover:text-red-600 font-bold uppercase tracking-widest">Cancel</button>`;
+                } else {
+                    actionHtml = `<span class="bg-orange-400 text-white text-[9px] font-black px-4 py-1.5 rounded-full uppercase">${row.status}</span>`;
                 }
 
                 list.innerHTML += `<tr class="border-b border-gray-100 text-sm hover:bg-gray-50 transition"><td class="py-4 px-8 font-bold">${row.agent_name}</td><td class="py-4 px-8 text-gray-600">${row.client_name}</td><td class="py-4 px-8 font-mono font-bold">$${row.amount}</td><td class="py-4 px-8 font-mono text-green-700 font-bold">$${agentPayout}</td>${isAdmin ? `<td class="py-4 px-8 font-mono text-orange-600 font-bold">$${agencyShare}</td>` : ''}<td class="py-4 px-8 text-right">${actionHtml}</td></tr>`;
