@@ -20,7 +20,6 @@
         .input-field { background-color: #ffffff !important; border: 1px solid #737373 !important; color: #000000 !important; transition: all 0.2s; border-radius: 12px; }
         .input-field:focus { border-color: #D4AF37 !important; outline: none; box-shadow: 0 0 0 3px rgba(212, 175, 55, 0.2); }
         .status-btn.active { background-color: #800000 !important; color: white !important; border-color: #800000 !important; }
-        
         .modal-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.8); z-index: 100; backdrop-filter: blur(8px); }
         .modal-content { position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 95%; max-width: 550px; z-index: 101; }
     </style>
@@ -57,7 +56,13 @@
                 <div class="bg-white p-2 rounded-2xl shadow-inner"><img src="logo.png" alt="Logo" class="h-14 w-auto"></div>
                 <div class="text-2xl font-black uppercase tracking-tighter italic">The Jolly Planner</div>
             </div>
-            <div id="agent-welcome" class="text-[10px] font-black uppercase tracking-widest text-white bg-black/40 px-8 py-3 rounded-full border border-gold/30"></div>
+            <div class="flex items-center space-x-4">
+                <div id="payday-tracker" class="hidden text-right border-r border-gold/30 pr-6 mr-2">
+                    <p class="text-[8px] uppercase font-black text-gold tracking-widest">Next Payday: <span id="payday-date" class="text-white"></span></p>
+                    <p class="text-[10px] font-black italic">Est. Payout: <span id="est-payout-val" class="text-green-400 text-xs">$0.00</span></p>
+                </div>
+                <div id="agent-welcome" class="text-[10px] font-black uppercase tracking-widest text-white bg-black/40 px-8 py-3 rounded-full border border-gold/30"></div>
+            </div>
         </nav>
 
         <main class="p-10 max-w-7xl mx-auto">
@@ -93,17 +98,32 @@
                     <div class="flex flex-col"><label class="text-[9px] text-gray-400 mb-3 uppercase ml-2">Confirmation #</label><input id="booking_no" type="text" class="input-field p-5"></div>
                     <div class="flex flex-col"><label class="text-[9px] text-gold mb-3 uppercase ml-2">Total Commission $</label><input id="amount" type="number" step="0.01" class="input-field p-5 font-black text-lg"></div>
                     <div class="flex flex-col"><label class="text-[9px] text-gray-400 mb-3 uppercase ml-2">Travel Date</label><input id="travel_date" type="date" class="input-field p-5"></div>
-                    <div class="flex flex-col lg:col-span-2"><label class="text-[9px] text-gray-400 mb-3 uppercase ml-2">Internal Notes</label><input id="notes" type="text" placeholder="Special requests..." class="input-field p-5"></div>
+                    <div class="flex flex-col lg:col-span-2"><label class="text-[9px] text-gray-400 mb-3 uppercase ml-2">Internal Notes</label><input id="notes" type="text" placeholder="Details..." class="input-field p-5"></div>
                     <div class="flex flex-col justify-end"><button type="button" onclick="saveBooking()" class="bg-gold text-black font-black py-5 rounded-2xl hover:bg-white transition-all uppercase text-[11px] tracking-widest shadow-xl">Submit Log</button></div>
                 </form>
             </div>
 
             <div class="bg-section-gray p-8 rounded-[2.5rem] shadow-2xl mb-8 border border-white/5">
                 <div class="flex flex-wrap items-end gap-8">
-                    <div class="flex flex-col flex-1 min-w-[250px]"><label class="text-[9px] font-black text-gray-400 uppercase mb-3 ml-2">Find a Pirate</label><input id="search-input" oninput="fetchBookings()" type="text" placeholder="Search names..." class="input-field p-4 text-xs font-bold italic"></div>
-                    <div class="flex flex-col"><label class="text-[9px] font-black text-gray-400 uppercase mb-3 ml-2">Filter Year</label><select id="year-filter" onchange="fetchBookings()" class="input-field p-4 text-xs font-bold cursor-pointer"></select></div>
+                    <div class="flex flex-col flex-1 min-w-[200px]"><label class="text-[9px] font-black text-gray-400 uppercase mb-3 ml-2">Search Manifest</label><input id="search-input" oninput="fetchBookings()" type="text" placeholder="Search..." class="input-field p-4 text-xs font-bold italic"></div>
+                    
                     <div class="flex flex-col">
-                        <label class="text-[9px] font-black text-gray-400 uppercase mb-3 ml-2">Status View</label>
+                        <label class="text-[9px] font-black text-gray-400 uppercase mb-3 ml-2">Year</label>
+                        <select id="year-filter" onchange="fetchBookings()" class="input-field p-4 text-xs font-bold cursor-pointer"></select>
+                    </div>
+
+                    <div id="admin-payroll-filter" class="hidden flex flex-col">
+                        <label class="text-[9px] font-black text-gold uppercase mb-3 ml-2">Payroll Audit</label>
+                        <select id="payroll-period" onchange="updatePayrollMode()" class="input-field p-4 text-xs font-bold cursor-pointer bg-gold/10 border-gold text-gold">
+                            <option value="off">Timeframe: All</option>
+                            <option value="last">Last Pay Period</option>
+                            <option value="current">Current Pay Period</option>
+                            <option value="next">Next Pay Period</option>
+                        </select>
+                    </div>
+
+                    <div class="flex flex-col">
+                        <label class="text-[9px] font-black text-gray-400 uppercase mb-3 ml-2">Status</label>
                         <div class="flex bg-white p-1 rounded-2xl border border-gray-400">
                             <button onclick="setStatusFilter('all')" id="btn-all" class="status-btn active px-6 py-2 rounded-xl text-[9px] font-black uppercase tracking-widest">All</button>
                             <button onclick="setStatusFilter('Pending')" id="btn-Pending" class="status-btn px-6 py-2 rounded-xl text-[9px] font-black uppercase tracking-widest">Pending</button>
@@ -120,7 +140,7 @@
                             <th class="py-6 px-10">Agent</th><th class="py-6 px-10">Client</th><th class="py-6 px-10">Total Comm</th>
                             <th class="py-6 px-10">Agent Split</th>
                             <th id="agency-col-head" class="py-6 px-10 hidden text-gold">Agency Revenue</th>
-                            <th class="py-6 px-10 text-right">Manifest</th>
+                            <th class="py-6 px-10 text-right">Actions</th>
                         </tr>
                     </thead>
                     <tbody id="bookings-list"></tbody>
@@ -135,6 +155,7 @@
         const _supabase = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
         const ADMIN_EMAIL = 'thejollyplannerta@gmail.com'; 
         let currentAgent = null; let selectedStatus = 'all'; let myChart = null; let globalData = [];
+        let payrollSelection = 'off';
 
         function initYearFilter() {
             const yearSelect = document.getElementById('year-filter');
@@ -145,10 +166,16 @@
             yearSelect.innerHTML = options;
         }
 
+        function updatePayrollMode() {
+            payrollSelection = document.getElementById('payroll-period').value;
+            if(payrollSelection !== 'off') setStatusFilter('Pending');
+            else fetchBookings();
+        }
+
         async function attemptLogin() {
             const email = document.getElementById('login_email').value.trim();
             const pass = document.getElementById('login_pass').value.trim();
-            const { data, error } = await _supabase.from('Agents').select('*').eq('email', email).eq('password', pass).single();
+            const { data } = await _supabase.from('Agents').select('*').eq('email', email).eq('password', pass).single();
             if (data) {
                 currentAgent = data; initYearFilter();
                 document.getElementById('login-screen').style.display = 'none';
@@ -157,10 +184,13 @@
                 if(email.toLowerCase() === ADMIN_EMAIL.toLowerCase()) {
                     document.getElementById('admin-revenue-box').classList.remove('hidden');
                     document.getElementById('agency-col-head').classList.remove('hidden');
+                    document.getElementById('admin-payroll-filter').classList.remove('hidden');
                     document.getElementById('payout-label').innerText = "Total Agent Payouts";
+                } else {
+                    document.getElementById('payday-tracker').classList.remove('hidden');
                 }
                 fetchBookings();
-            } else { alert("Login failed. Check your email and keycode."); console.log(error); }
+            } else { alert("Login failed."); }
         }
 
         function setStatusFilter(status) {
@@ -184,12 +214,11 @@
         }
 
         async function updateStatus(id, newStatus) {
-            const msg = newStatus === 'Pending' ? "Undo 'Paid' status?" : `Mark as Paid?`;
-            if(confirm(msg)) { await _supabase.from('Bookings').update({ status: newStatus }).eq('id', id); fetchBookings(); }
+            if(confirm(`Mark as ${newStatus}?`)) { await _supabase.from('Bookings').update({ status: newStatus }).eq('id', id); fetchBookings(); }
         }
 
         async function deleteBooking(id) {
-            if(confirm("Permanently delete this scallywag's log?")) { await _supabase.from('Bookings').delete().eq('id', id); fetchBookings(); }
+            if(confirm("Delete scallywag's log?")) { await _supabase.from('Bookings').delete().eq('id', id); fetchBookings(); }
         }
 
         function showDetails(id) {
@@ -198,18 +227,7 @@
             const supplierMatch = booking.notes ? booking.notes.match(/Supplier: (.*?) \|/) : null;
             const supplier = supplierMatch ? supplierMatch[1] : "Not Specified";
             const actualNotes = booking.notes ? booking.notes.split('|').pop().trim() : "No notes.";
-
-            body.innerHTML = `
-                <div class="grid grid-cols-2 gap-8">
-                    <div><p class="text-[9px] text-gray-400 uppercase tracking-widest">Client</p><p class="font-bold text-lg italic underline decoration-gold"> ${booking.client_name}</p></div>
-                    <div><p class="text-[9px] text-gray-400 uppercase tracking-widest">Supplier</p><p class="font-bold text-lg">${supplier}</p></div>
-                    <div><p class="text-[9px] text-gray-400 uppercase tracking-widest">Conf #</p><p class="font-bold text-lg text-gold">${booking.booking_no || 'N/A'}</p></div>
-                    <div><p class="text-[9px] text-gray-400 uppercase tracking-widest">Voyage Date</p><p class="font-bold text-lg">${booking.travel_date}</p></div>
-                </div>
-                <div class="pt-8 border-t border-white/10">
-                    <p class="text-[9px] text-gray-400 uppercase tracking-widest mb-3">Captain's Log</p>
-                    <p class="bg-black/30 p-6 rounded-2xl italic text-gray-300 leading-relaxed border-l-4 border-gold">" ${actualNotes}"</p>
-                </div>`;
+            body.innerHTML = `<div class="grid grid-cols-2 gap-8"><div><p class="text-[9px] text-gray-400 uppercase tracking-widest">Client</p><p class="font-bold text-lg italic underline decoration-gold"> ${booking.client_name}</p></div><div><p class="text-[9px] text-gray-400 uppercase tracking-widest">Supplier</p><p class="font-bold text-lg">${supplier}</p></div><div><p class="text-[9px] text-gray-400 uppercase tracking-widest">Conf #</p><p class="font-bold text-lg text-gold">${booking.booking_no || 'N/A'}</p></div><div><p class="text-[9px] text-gray-400 uppercase tracking-widest">Voyage Date</p><p class="font-bold text-lg">${booking.travel_date}</p></div></div><div class="pt-8 border-t border-white/10"><p class="text-[9px] text-gray-400 uppercase tracking-widest mb-3">Captain's Log</p><p class="bg-black/30 p-6 rounded-2xl italic text-gray-300 leading-relaxed border-l-4 border-gold">" ${actualNotes}"</p></div>`;
             document.getElementById('details-modal').style.display = 'block';
         }
 
@@ -233,7 +251,25 @@
             const list = document.getElementById('bookings-list'); list.innerHTML = '';
             const isAdmin = currentAgent.email.toLowerCase() === ADMIN_EMAIL.toLowerCase();
 
+            // Dynamic Window Calculation
+            const now = new Date();
+            const getWindow = (offset) => {
+                let d = new Date();
+                d.setDate(d.getDate() + (offset * 15));
+                const start = d.getDate() <= 15 ? new Date(d.getFullYear(), d.getMonth(), 1) : new Date(d.getFullYear(), d.getMonth(), 16);
+                const end = d.getDate() <= 15 ? new Date(d.getFullYear(), d.getMonth(), 15) : new Date(d.getFullYear(), d.getMonth() + 1, 0);
+                return { start, end };
+            };
+
+            let range = { start: null, end: null };
+            if(payrollSelection === 'last') range = getWindow(-1);
+            if(payrollSelection === 'current') range = getWindow(0);
+            if(payrollSelection === 'next') range = getWindow(1);
+
             data.forEach(row => {
+                const tDate = new Date(row.travel_date);
+                if (payrollSelection !== 'off' && isAdmin && (tDate < range.start || tDate > range.end)) return;
+
                 const agent = agentData.find(a => `${a.first_name} ${a.last_name}` === row.agent_name);
                 const rate = agent ? agent.commission_rate : 0.7;
                 const agentPayout = (row.amount * rate).toFixed(2);
@@ -259,18 +295,37 @@
         function updateDashboard(data, agentData) {
             const months = Array(12).fill(0); let totalAgentPayout = 0; let totalAgencyRevenue = 0; let active = 0;
             const isAdminView = currentAgent.email.toLowerCase() === ADMIN_EMAIL.toLowerCase();
+
+            const now = new Date();
+            const nextPayday = now.getDate() <= 15 ? new Date(now.getFullYear(), now.getMonth(), 15) : new Date(now.getFullYear(), now.getMonth() + 1, 0);
+            const periodStart = now.getDate() <= 15 ? new Date(now.getFullYear(), now.getMonth(), 1) : new Date(now.getFullYear(), now.getMonth(), 16);
+            const periodEnd = now.getDate() <= 15 ? new Date(now.getFullYear(), now.getMonth(), 15) : new Date(now.getFullYear(), now.getMonth() + 1, 0);
+
+            let estPayoutSum = 0;
+
             data.forEach(row => {
-                const date = new Date(row.travel_date);
+                const travelDate = new Date(row.travel_date);
                 const agent = agentData.find(a => `${a.first_name} ${a.last_name}` === row.agent_name);
                 const rate = agent ? agent.commission_rate : 0.7;
                 const agentPayout = row.amount * rate; const agencyShare = row.amount * (1 - rate);
-                months[date.getMonth()] += isAdminView ? (agentPayout + agencyShare) : agentPayout;
+                months[travelDate.getMonth()] += isAdminView ? (agentPayout + agencyShare) : agentPayout;
+                
                 if(row.status === 'Paid') { totalAgentPayout += agentPayout; totalAgencyRevenue += agencyShare; }
-                if(row.status === 'Pending') active++;
+                if(row.status === 'Pending') {
+                    active++;
+                    if (travelDate >= periodStart && travelDate <= periodEnd) { estPayoutSum += agentPayout; }
+                }
             });
+
             document.getElementById('total-payout').innerText = `$${totalAgentPayout.toLocaleString(undefined, {minimumFractionDigits: 2})}`;
             document.getElementById('agency-revenue').innerText = `$${totalAgencyRevenue.toLocaleString(undefined, {minimumFractionDigits: 2})}`;
             document.getElementById('active-count').innerText = active;
+            
+            if (!isAdminView) {
+                document.getElementById('payday-date').innerText = nextPayday.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+                document.getElementById('est-payout-val').innerText = `$${estPayoutSum.toLocaleString(undefined, {minimumFractionDigits: 2})}`;
+            }
+
             if (myChart) myChart.destroy();
             const ctx = document.getElementById('earningsChart').getContext('2d');
             myChart = new Chart(ctx, { type: 'bar', data: { labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'], datasets: [{ label: isAdminView ? 'Total Gross Commission' : 'Your Payout', data: months, backgroundColor: '#D4AF37', borderRadius: 10 }] }, options: { maintainAspectRatio: false, plugins: { legend: { display: false } }, scales: { y: { beginAtZero: true, grid: { color: 'rgba(255,255,255,0.05)' }, ticks: { color: '#9ca3af' } }, x: { grid: { display: false }, ticks: { color: '#9ca3af' } } } } });
