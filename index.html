@@ -8,111 +8,135 @@
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;700;900&display=swap');
-        body { font-family: 'Inter', sans-serif; background-color: #e5e5e5; }
+        @import url('https://fonts.googleapis.com/css2?family=Playfair+Display+SC:ital,wght@0,900;1,900&family=Inter:wght@400;600;800&display=swap');
+        
+        body { font-family: 'Inter', sans-serif; background-color: #f1f5f9; }
+        h1, h2, h3, h4, .serif { font-family: 'Playfair Display SC', serif; }
+        
         .bg-maroon { background-color: #800000; }
-        .bg-section-gray { background-color: #333333; } 
-        .bg-tropical-gradient { background: linear-gradient(135deg, #800000 0%, #FB923C 100%); }
+        .bg-obsidian { background-color: #1a1a1a; } 
+        
+        /* Bold Black Border Styling */
+        .bold-border { border: 2.5px solid #000000 !important; }
+        
         #portal-content { display: none; }
-        .input-field { background-color: #ffffff !important; border: 1px solid #737373 !important; color: #000000 !important; transition: all 0.2s; }
-        .input-field:focus { border-color: #FB923C !important; outline: none; box-shadow: 0 0 0 3px rgba(251, 146, 60, 0.2); }
-        .status-btn.active { background-color: #800000 !important; color: white !important; border-color: #800000 !important; }
+        .input-field { background-color: #ffffff !important; color: #1a1a1a !important; transition: all 0.2s; border-radius: 4px; }
+        .input-field:focus { border-color: #800000 !important; outline: none; box-shadow: 0 0 0 3px rgba(128, 0, 0, 0.1); }
+        .status-btn.active { background-color: #800000 !important; color: white !important; border-color: #000000 !important; }
+        
+        .modal-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.85); z-index: 100; backdrop-filter: blur(10px); }
+        .modal-content { position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 95%; max-width: 500px; z-index: 101; }
     </style>
 </head>
-<body class="text-gray-900">
+<body class="text-slate-900">
 
-    <div id="login-screen" class="fixed inset-0 bg-maroon z-50 flex items-center justify-center p-6">
-        <div class="bg-white p-10 rounded-[2.5rem] shadow-2xl max-w-md w-full text-center">
-            <div class="bg-white p-4 rounded-2xl shadow-inner inline-block mb-6 border border-gray-100">
-                <img src="logo.png" alt="Logo" class="h-20 w-auto">
+    <div id="details-modal" class="modal-overlay" onclick="closeModal()">
+        <div class="modal-content bg-white p-10 rounded-lg bold-border shadow-2xl text-slate-900" onclick="event.stopPropagation()">
+            <div class="flex justify-between items-center mb-8 border-b-2 border-black pb-4">
+                <h2 class="text-xl font-black italic text-maroon">🌴 Voyage Manifest</h2>
+                <button onclick="closeModal()" class="text-slate-400 hover:text-maroon text-2xl">×</button>
             </div>
-            <h1 class="text-xl font-black uppercase tracking-tighter mb-2">Agent Access</h1>
-            <p class="text-gray-400 text-xs font-bold uppercase tracking-widest mb-8 text-center italic">The Jolly Planner Host Agency</p>
-            <input id="login_email" type="email" placeholder="Agent Email" class="w-full input-field p-4 rounded-2xl mb-4 font-semibold text-center italic">
-            <input id="login_pass" type="password" placeholder="Password" class="w-full input-field p-4 rounded-2xl mb-6 font-semibold text-center italic">
-            <button onclick="attemptLogin()" class="w-full bg-black text-white font-black py-4 rounded-2xl hover:bg-red-900 transition-all shadow-xl uppercase text-xs tracking-widest">Authorize Entrance</button>
+            <div id="modal-body" class="space-y-6 text-sm font-semibold"></div>
+            <button onclick="closeModal()" class="w-full mt-10 bg-obsidian text-white font-bold py-4 rounded uppercase text-[10px] tracking-widest hover:bg-maroon transition-all bold-border">Close Manifest</button>
+        </div>
+    </div>
+
+    <div id="login-screen" class="fixed inset-0 bg-obsidian z-50 flex items-center justify-center p-6">
+        <div class="bg-white p-12 rounded-lg bold-border shadow-2xl max-w-md w-full text-center">
+            <img src="logo.png" alt="Logo" class="h-20 w-auto mx-auto mb-8">
+            <h1 class="text-3xl font-black mb-2 italic">Agent Portal</h1>
+            <p class="text-slate-400 text-[10px] font-bold uppercase tracking-[0.2em] mb-10 italic">The Jolly Planner Host Agency</p>
+            <input id="login_email" type="email" placeholder="Email Address" class="w-full input-field bold-border p-4 mb-4 text-sm font-bold">
+            <input id="login_pass" type="password" placeholder="Passkey" class="w-full input-field bold-border p-4 mb-8 text-sm font-bold">
+            <button onclick="attemptLogin()" class="w-full bg-maroon text-white font-bold py-4 rounded hover:bg-black transition-all shadow-lg uppercase text-xs tracking-widest bold-border">Authorize Access</button>
         </div>
     </div>
 
     <div id="portal-content">
-        <nav class="bg-maroon text-white px-8 py-4 flex justify-between items-center shadow-lg">
-            <div class="flex items-center space-x-6">
-                <div class="bg-white p-2 rounded-xl shadow-inner"><img src="logo.png" alt="Logo" class="h-12 w-auto"></div>
-                <div class="text-xl font-black uppercase tracking-tighter italic">The Jolly Planner</div>
+        <nav class="bg-maroon text-white px-10 py-4 flex justify-between items-center shadow-xl border-b-4 border-black">
+            <div class="flex items-center space-x-4">
+                <img src="logo.png" alt="Logo" class="h-10 w-auto bg-white p-1 rounded bold-border">
+                <div class="text-2xl font-black italic">The Jolly Planner</div>
             </div>
-            <div id="agent-welcome" class="text-[11px] font-black uppercase tracking-widest text-white bg-black/30 px-6 py-2.5 rounded-full border border-white/10"></div>
+            <div class="flex items-center space-x-6">
+                <div id="payday-tracker" class="hidden text-right border-r-2 border-white/20 pr-6">
+                    <p class="text-[9px] uppercase font-bold text-slate-300 tracking-tighter">Next Payday: <span id="payday-date" class="text-white"></span></p>
+                    <p class="text-[11px] font-bold">Est: <span id="est-payout-val" class="text-white underline decoration-white decoration-2">$0.00</span></p>
+                </div>
+                <div id="agent-welcome" class="text-[10px] font-bold uppercase tracking-widest bg-white/10 px-6 py-2 rounded-full border-2 border-white"></div>
+            </div>
         </nav>
 
-        <main class="p-8 max-w-7xl mx-auto">
-            <div class="grid grid-cols-1 lg:grid-cols-4 gap-8 mb-10">
-                <div class="lg:col-span-2 bg-section-gray p-8 rounded-[2.5rem] shadow-xl text-white">
-                    <h2 class="text-xs font-black uppercase tracking-[0.2em] text-orange-400 mb-6 italic">Performance Radar</h2>
-                    <div class="h-64"><canvas id="earningsChart"></canvas></div>
+        <main class="p-10 max-w-7xl mx-auto">
+            <div class="grid grid-cols-1 lg:grid-cols-3 gap-8 mb-12">
+                <div class="bg-white p-8 rounded-lg shadow-sm bold-border">
+                    <h2 class="text-xs font-bold uppercase tracking-widest text-slate-400 mb-6">🌴 Revenue Performance</h2>
+                    <div class="h-48"><canvas id="earningsChart"></canvas></div>
                 </div>
-                <div class="bg-maroon p-8 rounded-[2.5rem] shadow-xl text-white flex flex-col justify-center">
-                    <p id="payout-label" class="text-[10px] font-black uppercase tracking-widest opacity-60 mb-2">Your Payouts</p>
-                    <h3 id="total-payout" class="text-4xl font-black italic">$0.00</h3>
-                    <div id="admin-revenue-box" class="hidden mt-6 pt-6 border-t border-white/10">
-                        <p class="text-[10px] font-black uppercase tracking-widest opacity-60 mb-2 text-orange-400">Total Agency Revenue</p>
-                        <h4 id="agency-revenue" class="text-2xl font-black">$0.00</h4>
+                <div class="bg-maroon p-8 rounded-lg shadow-xl text-white flex flex-col justify-center bold-border">
+                    <p id="payout-label" class="text-[10px] font-bold uppercase tracking-widest opacity-80 mb-2">Total Payouts</p>
+                    <h3 id="total-payout" class="text-3xl font-black italic">$0.00</h3>
+                    <div id="admin-revenue-box" class="hidden mt-6 pt-6 border-t-2 border-white/20">
+                        <p class="text-[10px] font-bold uppercase tracking-widest text-slate-300 mb-2">Agency Net (30%)</p>
+                        <h4 id="agency-revenue" class="text-xl font-black italic text-white">$0.00</h4>
                     </div>
                 </div>
-                <div class="bg-white p-8 rounded-[2.5rem] shadow-xl flex flex-col justify-center border border-gray-200">
-                    <p class="text-[10px] font-black uppercase tracking-widest text-gray-400 mb-2">Active Bookings</p>
-                    <h4 id="active-count" class="text-5xl font-black text-gray-900 italic">0</h4>
+                <div class="bg-obsidian p-8 rounded-lg shadow-xl text-white flex flex-col justify-center bold-border">
+                    <p class="text-[10px] font-bold uppercase tracking-widest opacity-80 mb-2">Active Voyages</p>
+                    <h4 id="active-count" class="text-5xl font-black italic">0</h4>
                 </div>
             </div>
 
-            <div class="bg-section-gray p-10 rounded-[2.5rem] shadow-xl mb-10 relative overflow-hidden">
-                <div class="absolute top-0 left-0 w-full h-1.5 bg-tropical-gradient"></div>
-                <h2 class="text-xs font-black uppercase tracking-[0.2em] text-orange-400 mb-8 italic">Log New Commission</h2>
-                <form id="bookingForm" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 text-sm font-semibold">
-                    <div class="flex flex-col"><label class="text-[9px] text-gray-300 mb-2 uppercase ml-2">Client (Last, First)</label><input id="client_name" type="text" placeholder="Doe, Jane" class="input-field p-4 rounded-2xl"></div>
-                    <div class="flex flex-col"><label class="text-[9px] text-gray-300 mb-2 uppercase ml-2">Supplier</label>
-                        <select id="supplier" class="input-field p-4 rounded-2xl cursor-pointer">
+            <div class="bg-white p-10 rounded-lg shadow-sm bold-border mb-12">
+                <h2 class="text-lg font-black italic text-maroon mb-8">🌴 Log New Commission</h2>
+                <form id="bookingForm" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 text-sm font-bold">
+                    <div class="flex flex-col"><label class="text-[10px] font-bold text-slate-400 mb-2 uppercase">Client Name</label><input id="client_name" type="text" class="input-field bold-border p-3"></div>
+                    <div class="flex flex-col"><label class="text-[10px] font-bold text-slate-400 mb-2 uppercase">Supplier</label>
+                        <select id="supplier" class="input-field bold-border p-3">
                             <option value="">Select Supplier</option><option value="Disney">Disney</option><option value="Royal Caribbean">Royal Caribbean</option><option value="Carnival">Carnival</option><option value="Norwegian">Norwegian</option><option value="Sandals">Sandals</option><option value="Universal">Universal</option><option value="Other">Other</option>
                         </select>
                     </div>
-                    <div class="flex flex-col"><label class="text-[9px] text-gray-300 mb-2 uppercase ml-2">Confirmation #</label><input id="booking_no" type="text" class="input-field p-4 rounded-2xl"></div>
-                    <div class="flex flex-col"><label class="text-[9px] text-orange-400 mb-2 uppercase ml-2">Total Commission $</label><input id="amount" type="number" step="0.01" class="input-field p-4 rounded-2xl font-bold"></div>
-                    <div class="flex flex-col"><label class="text-[9px] text-gray-300 mb-2 uppercase ml-2">Travel Date</label><input id="travel_date" type="date" class="input-field p-4 rounded-2xl"></div>
-                    <div class="flex flex-col lg:col-span-2"><label class="text-[9px] text-gray-300 mb-2 uppercase ml-2">Notes</label><input id="notes" type="text" placeholder="Details..." class="input-field p-4 rounded-2xl"></div>
-                    <div class="flex flex-col justify-end"><button type="button" onclick="saveBooking()" class="bg-orange-500 text-white font-black py-4 rounded-2xl hover:bg-white hover:text-black transition-all uppercase text-[10px] tracking-widest">Submit Log</button></div>
+                    <div class="flex flex-col"><label class="text-[10px] font-bold text-slate-400 mb-2 uppercase">Confirmation #</label><input id="booking_no" type="text" class="input-field bold-border p-3"></div>
+                    <div class="flex flex-col"><label class="text-[10px] font-bold text-maroon mb-2 uppercase">Gross Commission $</label><input id="amount" type="number" step="0.01" class="input-field bold-border p-3 font-bold"></div>
+                    <div class="flex flex-col"><label class="text-[10px] font-bold text-slate-400 mb-2 uppercase">Travel Date</label><input id="travel_date" type="date" class="input-field bold-border p-3"></div>
+                    <div class="flex flex-col lg:col-span-2"><label class="text-[10px] font-bold text-slate-400 mb-2 uppercase">Notes</label><input id="notes" type="text" class="input-field bold-border p-3"></div>
+                    <div class="flex flex-col justify-end"><button type="button" onclick="saveBooking()" class="bg-maroon text-white font-bold py-3 rounded hover:bg-black transition-all uppercase text-[10px] tracking-widest bold-border shadow-md">Submit Log</button></div>
                 </form>
             </div>
 
-            <div class="bg-section-gray p-8 rounded-[2.5rem] shadow-xl mb-6">
-                <div class="flex flex-wrap items-end gap-6">
-                    <div class="flex flex-col flex-1 min-w-[200px]"><label class="text-[9px] font-black text-gray-300 uppercase mb-2 ml-2">Search Records</label><input id="search-input" oninput="fetchBookings()" type="text" placeholder="Search..." class="input-field p-3 rounded-xl text-xs font-bold"></div>
-                    
-                    <div class="flex flex-col">
-                        <label class="text-[9px] font-black text-gray-300 uppercase mb-2 ml-2">Filter Year</label>
-                        <select id="year-filter" onchange="fetchBookings()" class="input-field p-3 rounded-xl text-xs font-bold">
-                        </select>
-                    </div>
-
-                    <div class="flex flex-col">
-                        <label class="text-[9px] font-black text-gray-300 uppercase mb-2 ml-2">Status View</label>
-                        <div class="flex bg-white p-1 rounded-xl border border-gray-400">
-                            <button onclick="setStatusFilter('all')" id="btn-all" class="status-btn active px-4 py-1.5 rounded-lg text-[9px] font-black uppercase tracking-widest">All</button>
-                            <button onclick="setStatusFilter('Pending')" id="btn-Pending" class="status-btn px-4 py-1.5 rounded-lg text-[9px] font-black uppercase tracking-widest">Pending</button>
-                            <button onclick="setStatusFilter('Paid')" id="btn-Paid" class="status-btn px-4 py-1.5 rounded-lg text-[9px] font-black uppercase tracking-widest">Paid</button>
-                        </div>
+            <div class="bg-white p-6 rounded-lg shadow-sm bold-border mb-8 flex flex-wrap items-end gap-6">
+                <div class="flex flex-col flex-1 min-w-[200px]"><label class="text-[9px] font-bold text-slate-400 uppercase mb-2">Search</label><input id="search-input" oninput="fetchBookings()" type="text" placeholder="Search Manifest..." class="input-field bold-border p-3 text-xs"></div>
+                <div class="flex flex-col"><label class="text-[9px] font-bold text-slate-400 uppercase mb-2">Year</label><select id="year-filter" onchange="fetchBookings()" class="input-field bold-border p-3 text-xs"></select></div>
+                <div id="admin-payroll-filter" class="hidden flex flex-col">
+                    <label class="text-[9px] font-bold text-maroon uppercase mb-2">Payroll Audit</label>
+                    <select id="payroll-period" onchange="updatePayrollMode()" class="input-field bold-border p-3 text-xs font-bold border-maroon text-maroon">
+                        <option value="off">View: All Data</option>
+                        <option value="last">Last Pay Period</option>
+                        <option value="current">Current Period</option>
+                        <option value="next">Next Period</option>
+                    </select>
+                </div>
+                <div class="flex flex-col">
+                    <label class="text-[9px] font-bold text-slate-400 uppercase mb-2">Status</label>
+                    <div class="flex bg-slate-100 p-1 rounded bold-border">
+                        <button onclick="setStatusFilter('all')" id="btn-all" class="status-btn active px-4 py-1.5 rounded text-[9px] font-bold uppercase">All</button>
+                        <button onclick="setStatusFilter('Pending')" id="btn-Pending" class="status-btn px-4 py-1.5 rounded text-[9px] font-bold uppercase">Pending</button>
+                        <button onclick="setStatusFilter('Paid')" id="btn-Paid" class="status-btn px-4 py-1.5 rounded text-[9px] font-bold uppercase">Paid</button>
                     </div>
                 </div>
             </div>
 
-            <div class="bg-white rounded-[2.5rem] shadow-sm border border-gray-200 overflow-hidden">
+            <div class="bg-white rounded-lg shadow-sm bold-border overflow-hidden">
                 <table class="w-full text-left">
-                    <thead class="bg-gray-100 text-[10px] uppercase font-black text-gray-400 border-b border-gray-200">
+                    <thead class="bg-slate-50 text-[10px] uppercase font-bold text-slate-400 border-b-2 border-black">
                         <tr>
-                            <th class="py-5 px-8">Agent</th><th class="py-5 px-8">Client</th><th class="py-5 px-8">Total Comm</th>
-                            <th class="py-5 px-8">Agent Split</th>
-                            <th id="agency-col-head" class="py-5 px-8 hidden text-orange-600">Agency Share</th>
-                            <th class="py-5 px-8 text-right">Status / Actions</th>
+                            <th class="py-5 px-8">Agent</th><th class="py-5 px-8">Client</th><th class="py-5 px-8">Commission</th>
+                            <th class="py-5 px-8">Split</th>
+                            <th id="agency-col-head" class="py-5 px-8 hidden">Agency</th>
+                            <th class="py-5 px-8 text-right">Status</th>
                         </tr>
                     </thead>
-                    <tbody id="bookings-list"></tbody>
+                    <tbody id="bookings-list" class="text-sm font-semibold"></tbody>
                 </table>
             </div>
         </main>
@@ -123,39 +147,36 @@
         const SUPABASE_KEY = 'sb_publishable_EwHbzlR1eSNaRrGCxRbdCQ_R_Djvc08';
         const _supabase = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
         const ADMIN_EMAIL = 'thejollyplannerta@gmail.com'; 
-        let currentAgent = null;
-        let selectedStatus = 'all';
-        let myChart = null;
+        let currentAgent = null; let selectedStatus = 'all'; let myChart = null; let globalData = [];
+        let payrollSelection = 'off';
 
         function initYearFilter() {
             const yearSelect = document.getElementById('year-filter');
             const currentYear = new Date().getFullYear();
-            const startYear = 2025; 
-            const endYear = currentYear + 2; 
             let options = `<option value="all">All Time</option>`;
-            for (let y = endYear; y >= startYear; y--) {
-                options += `<option value="${y}" ${y === currentYear ? 'selected' : ''}>${y}</option>`;
-            }
+            for (let y = currentYear + 1; y >= 2025; y--) { options += `<option value="${y}" ${y === currentYear ? 'selected' : ''}>${y}</option>`; }
             yearSelect.innerHTML = options;
         }
+
+        function updatePayrollMode() { payrollSelection = document.getElementById('payroll-period').value; if(payrollSelection !== 'off') setStatusFilter('Pending'); else fetchBookings(); }
 
         async function attemptLogin() {
             const email = document.getElementById('login_email').value.trim();
             const pass = document.getElementById('login_pass').value.trim();
             const { data } = await _supabase.from('Agents').select('*').eq('email', email).eq('password', pass).single();
             if (data) {
-                currentAgent = data;
-                initYearFilter();
+                currentAgent = data; initYearFilter();
                 document.getElementById('login-screen').style.display = 'none';
                 document.getElementById('portal-content').style.display = 'block';
                 document.getElementById('agent-welcome').innerText = `${data.first_name} ${data.last_name}`;
                 if(email.toLowerCase() === ADMIN_EMAIL.toLowerCase()) {
                     document.getElementById('admin-revenue-box').classList.remove('hidden');
                     document.getElementById('agency-col-head').classList.remove('hidden');
-                    document.getElementById('payout-label').innerText = "Total Agent Payouts";
-                }
+                    document.getElementById('admin-payroll-filter').classList.remove('hidden');
+                    document.getElementById('payout-label').innerText = "Agent Payouts";
+                } else { document.getElementById('payday-tracker').classList.remove('hidden'); }
                 fetchBookings();
-            } else { alert("Login failed."); }
+            } else { alert("Access Denied."); }
         }
 
         function setStatusFilter(status) {
@@ -178,20 +199,25 @@
             if (!error) { document.getElementById('bookingForm').reset(); fetchBookings(); }
         }
 
-        async function updateStatus(id, newStatus) {
-            const msg = newStatus === 'Pending' ? "Undo 'Paid' status?" : `Mark as ${newStatus}?`;
-            if(confirm(msg)) {
-                await _supabase.from('Bookings').update({ status: newStatus }).eq('id', id);
-                fetchBookings();
-            }
+        async function updateStatus(id, newStatus) { if(confirm(`Confirm ${newStatus}?`)) { await _supabase.from('Bookings').update({ status: newStatus }).eq('id', id); fetchBookings(); } }
+        async function deleteBooking(id) { if(confirm("Remove this record?")) { await _supabase.from('Bookings').delete().eq('id', id); fetchBookings(); } }
+
+        function showDetails(id) {
+            const booking = globalData.find(b => b.id === id); if (!booking) return;
+            const supplierMatch = booking.notes ? booking.notes.match(/Supplier: (.*?) \|/) : null;
+            const actualNotes = booking.notes ? booking.notes.split('|').pop().trim() : "No notes.";
+            document.getElementById('modal-body').innerHTML = `
+                <div class="grid grid-cols-2 gap-6">
+                    <div><p class="text-[10px] text-slate-400 uppercase font-bold">Client</p><p class="font-bold">${booking.client_name}</p></div>
+                    <div><p class="text-[10px] text-slate-400 uppercase font-bold">Supplier</p><p class="font-bold text-maroon">${supplierMatch ? supplierMatch[1] : 'Other'}</p></div>
+                    <div><p class="text-[10px] text-slate-400 uppercase font-bold">Confirmation</p><p class="font-mono text-slate-600">${booking.booking_no || 'N/A'}</p></div>
+                    <div><p class="text-[10px] text-slate-400 uppercase font-bold">Voyage Date</p><p class="font-bold">${booking.travel_date}</p></div>
+                </div>
+                <div class="pt-6 border-t"><p class="text-[10px] text-slate-400 uppercase font-bold mb-2">Agent Notes</p><p class="italic text-slate-500 bg-slate-50 p-4 rounded bold-border">"${actualNotes}"</p></div>`;
+            document.getElementById('details-modal').style.display = 'block';
         }
 
-        async function deleteBooking(id) {
-            if(confirm("Permanently delete this booking log?")) {
-                await _supabase.from('Bookings').delete().eq('id', id);
-                fetchBookings();
-            }
-        }
+        function closeModal() { document.getElementById('details-modal').style.display = 'none'; }
 
         async function fetchBookings() {
             const year = document.getElementById('year-filter').value;
@@ -199,66 +225,79 @@
             let query = _supabase.from('Bookings').select('*');
             if (year !== 'all') { query = query.gte('travel_date', `${year}-01-01`).lte('travel_date', `${year}-12-31`); }
             if (selectedStatus !== 'all') { query = query.eq('status', selectedStatus); }
-            if (currentAgent.email.toLowerCase() !== ADMIN_EMAIL.toLowerCase()) {
-                query = query.eq('agent_name', `${currentAgent.first_name} ${currentAgent.last_name}`);
-            }
+            if (currentAgent.email.toLowerCase() !== ADMIN_EMAIL.toLowerCase()) { query = query.eq('agent_name', `${currentAgent.first_name} ${currentAgent.last_name}`); }
             if (search) { query = query.or(`client_name.ilike.%${search}%,booking_no.ilike.%${search}%`); }
             const { data } = await query.order('created_at', { ascending: false });
+            globalData = data;
             const { data: agentData } = await _supabase.from('Agents').select('first_name, last_name, commission_rate');
-            updateDashboard(data, agentData);
-            renderLedger(data, agentData);
+            updateDashboard(data, agentData); renderLedger(data, agentData);
         }
 
         function renderLedger(data, agentData) {
-            const list = document.getElementById('bookings-list');
-            list.innerHTML = '';
+            const list = document.getElementById('bookings-list'); list.innerHTML = '';
             const isAdmin = currentAgent.email.toLowerCase() === ADMIN_EMAIL.toLowerCase();
+            const now = new Date();
+            const getWindow = (offset) => {
+                let d = new Date(); d.setDate(d.getDate() + (offset * 15));
+                const start = d.getDate() <= 15 ? new Date(d.getFullYear(), d.getMonth(), 1) : new Date(d.getFullYear(), d.getMonth(), 16);
+                const end = d.getDate() <= 15 ? new Date(d.getFullYear(), d.getMonth(), 15) : new Date(d.getFullYear(), d.getMonth() + 1, 0);
+                return { start, end };
+            };
+            let range = payrollSelection === 'last' ? getWindow(-1) : (payrollSelection === 'current' ? getWindow(0) : getWindow(1));
 
             data.forEach(row => {
+                const tDate = new Date(row.travel_date);
+                if (payrollSelection !== 'off' && isAdmin && (tDate < range.start || tDate > range.end)) return;
                 const agent = agentData.find(a => `${a.first_name} ${a.last_name}` === row.agent_name);
                 const rate = agent ? agent.commission_rate : 0.7;
                 const agentPayout = (row.amount * rate).toFixed(2);
                 const agencyShare = (row.amount * (1 - rate)).toFixed(2);
                 const isPaid = row.status === 'Paid';
 
-                let actionHtml = '';
+                let actionHtml = `<div class="flex items-center justify-end space-x-3">`;
                 if(isPaid) {
-                    actionHtml = `<span class="bg-green-500 text-white text-[9px] font-black px-4 py-1.5 rounded-full uppercase mr-2">Paid</span>`;
-                    if(isAdmin) actionHtml += `<button onclick="updateStatus(${row.id}, 'Pending')" class="text-[9px] text-gray-400 hover:text-red-600 font-bold uppercase underline">Undo</button>`;
+                    actionHtml += `<span class="text-[9px] font-bold text-green-600 bg-green-50 px-3 py-1 rounded-full uppercase bold-border">Paid</span>`;
+                    if(isAdmin) actionHtml += `<button onclick="updateStatus(${row.id}, 'Pending')" class="text-[9px] text-slate-400 hover:text-maroon underline font-bold">Undo</button>`;
                 } else if(isAdmin) {
-                    actionHtml = `<button onclick="updateStatus(${row.id}, 'Paid')" class="bg-green-500 text-white text-[9px] font-black px-4 py-1.5 rounded-full uppercase hover:bg-green-600 mr-4 shadow-sm">Mark Paid</button>`;
-                    actionHtml += `<button onclick="deleteBooking(${row.id})" class="text-[9px] text-gray-400 hover:text-red-600 font-bold uppercase tracking-widest">Cancel</button>`;
-                } else {
-                    actionHtml = `<span class="bg-orange-400 text-white text-[9px] font-black px-4 py-1.5 rounded-full uppercase">${row.status}</span>`;
-                }
+                    actionHtml += `<button onclick="updateStatus(${row.id}, 'Paid')" class="bg-maroon text-white text-[9px] font-bold px-4 py-1.5 rounded hover:bg-black bold-border">Mark Paid</button>`;
+                    actionHtml += `<button onclick="deleteBooking(${row.id})" class="text-[9px] text-slate-400 hover:text-red-600 font-bold">Remove</button>`;
+                } else { actionHtml += `<span class="text-[9px] font-bold text-slate-400 bg-slate-100 px-3 py-1 rounded-full uppercase bold-border">${row.status}</span>`; }
+                actionHtml += `<button onclick="showDetails(${row.id})" class="text-[9px] font-bold text-maroon hover:underline">Details</button></div>`;
 
-                list.innerHTML += `<tr class="border-b border-gray-100 text-sm hover:bg-gray-50 transition"><td class="py-4 px-8 font-bold">${row.agent_name}</td><td class="py-4 px-8 text-gray-600">${row.client_name}</td><td class="py-4 px-8 font-mono font-bold">$${row.amount}</td><td class="py-4 px-8 font-mono text-green-700 font-bold">$${agentPayout}</td>${isAdmin ? `<td class="py-4 px-8 font-mono text-orange-600 font-bold">$${agencyShare}</td>` : ''}<td class="py-4 px-8 text-right">${actionHtml}</td></tr>`;
+                list.innerHTML += `<tr class="border-b hover:bg-slate-50 transition"><td class="py-4 px-8 font-semibold">${row.agent_name}</td><td class="py-4 px-8 text-slate-500">${row.client_name}</td><td class="py-4 px-8 font-bold text-slate-700">$${row.amount}</td><td class="py-4 px-8 font-bold text-green-600">$${agentPayout}</td>${isAdmin ? `<td class="py-4 px-8 font-bold text-slate-400">$${agencyShare}</td>` : ''}<td class="py-4 px-8 text-right">${actionHtml}</td></tr>`;
             });
         }
 
         function updateDashboard(data, agentData) {
-            const months = Array(12).fill(0);
-            let totalAgentPayout = 0;
-            let totalAgencyRevenue = 0;
-            let active = 0;
+            const months = Array(12).fill(0); let totalAgentPayout = 0; let totalAgencyRevenue = 0; let active = 0;
+            const isAdminView = currentAgent.email.toLowerCase() === ADMIN_EMAIL.toLowerCase();
+            const now = new Date();
+            const nextPayday = now.getDate() <= 15 ? new Date(now.getFullYear(), now.getMonth(), 15) : new Date(now.getFullYear(), now.getMonth() + 1, 0);
+            const pStart = now.getDate() <= 15 ? new Date(now.getFullYear(), now.getMonth(), 1) : new Date(now.getFullYear(), now.getMonth(), 16);
+            const pEnd = now.getDate() <= 15 ? new Date(now.getFullYear(), now.getMonth(), 15) : new Date(now.getFullYear(), now.getMonth() + 1, 0);
+            let estPayoutSum = 0;
+
             data.forEach(row => {
-                const date = new Date(row.travel_date);
+                const travelDate = new Date(row.travel_date);
                 const agent = agentData.find(a => `${a.first_name} ${a.last_name}` === row.agent_name);
                 const rate = agent ? agent.commission_rate : 0.7;
-                const agentPayout = row.amount * rate;
-                const agencyShare = row.amount * (1 - rate);
-                months[date.getMonth()] += isAdmin() ? (agentPayout + agencyShare) : agentPayout;
+                const agentPayout = row.amount * rate; const agencyShare = row.amount * (1 - rate);
+                months[travelDate.getMonth()] += isAdminView ? (agentPayout + agencyShare) : agentPayout;
                 if(row.status === 'Paid') { totalAgentPayout += agentPayout; totalAgencyRevenue += agencyShare; }
-                if(row.status === 'Pending') active++;
+                if(row.status === 'Pending') { active++; if (travelDate >= pStart && travelDate <= pEnd) estPayoutSum += agentPayout; }
             });
+
             document.getElementById('total-payout').innerText = `$${totalAgentPayout.toLocaleString(undefined, {minimumFractionDigits: 2})}`;
             document.getElementById('agency-revenue').innerText = `$${totalAgencyRevenue.toLocaleString(undefined, {minimumFractionDigits: 2})}`;
             document.getElementById('active-count').innerText = active;
+            if (!isAdminView) {
+                document.getElementById('payday-date').innerText = nextPayday.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+                document.getElementById('est-payout-val').innerText = `$${estPayoutSum.toLocaleString(undefined, {minimumFractionDigits: 2})}`;
+            }
             if (myChart) myChart.destroy();
             const ctx = document.getElementById('earningsChart').getContext('2d');
-            myChart = new Chart(ctx, { type: 'bar', data: { labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'], datasets: [{ label: isAdmin() ? 'Total Gross Commission' : 'Your Payout', data: months, backgroundColor: '#FB923C', borderRadius: 10 }] }, options: { maintainAspectRatio: false, plugins: { legend: { display: false } }, scales: { y: { beginAtZero: true, grid: { color: 'rgba(255,255,255,0.1)' }, ticks: { color: '#9ca3af' } }, x: { grid: { display: false }, ticks: { color: '#9ca3af' } } } } });
+            myChart = new Chart(ctx, { type: 'bar', data: { labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'], datasets: [{ label: 'Revenue', data: months, backgroundColor: '#800000', borderRadius: 0 }] }, options: { maintainAspectRatio: false, plugins: { legend: { display: false } }, scales: { y: { beginAtZero: true, grid: { display: false }, ticks: { font: { size: 9 } } }, x: { grid: { display: false }, ticks: { font: { size: 9 } } } } } });
         }
-        function isAdmin() { return currentAgent.email.toLowerCase() === ADMIN_EMAIL.toLowerCase(); }
     </script>
 </body>
 </html>
