@@ -25,6 +25,37 @@
         .input-field:focus { border-color: #800000 !important; outline: none; box-shadow: 0 0 0 3px rgba(128, 0, 0, 0.1); }
         .nav-tab.active { background-color: #ffffff; color: #800000; border-bottom: 4px solid #000000; }
         
+        /* Tooltip Logic */
+        .vendor-card { position: relative; }
+        .vendor-tooltip { 
+            visibility: hidden; 
+            position: absolute; 
+            bottom: 110%; 
+            left: 50%; 
+            transform: translateX(-50%); 
+            width: 240px; 
+            background-color: #1a1a1a; 
+            color: white; 
+            padding: 15px; 
+            border-radius: 8px; 
+            border: 2px solid #000000;
+            z-index: 50;
+            opacity: 0;
+            transition: opacity 0.3s;
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.3);
+        }
+        .vendor-card:hover .vendor-tooltip { visibility: visible; opacity: 1; }
+        .vendor-tooltip::after {
+            content: "";
+            position: absolute;
+            top: 100%;
+            left: 50%;
+            margin-left: -8px;
+            border-width: 8px;
+            border-style: solid;
+            border-color: #1a1a1a transparent transparent transparent;
+        }
+
         .modal-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.85); z-index: 100; backdrop-filter: blur(10px); }
         .modal-content { position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 95%; max-width: 500px; z-index: 101; }
     </style>
@@ -146,40 +177,57 @@
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-10">
                     <div class="bg-white p-10 rounded-lg bold-border shadow-sm">
                         <h2 class="text-xl font-black italic text-maroon mb-8 border-b-2 border-black pb-4">🌴 Vendor Portals</h2>
-                        <div class="grid grid-cols-1 gap-4">
-                            <a href="https://www.cruisingpower.com/" target="_blank" class="flex justify-between items-center p-5 bg-slate-50 rounded-lg bold-border hover:bg-maroon hover:text-white transition-all group">
-                                <span class="font-bold uppercase text-xs tracking-widest">CruisingPower (Royal Caribbean/Celebrity)</span>
-                                <span class="text-lg">→</span>
-                            </a>
-                            <a href="https://www.disneytravelagents.com/" target="_blank" class="flex justify-between items-center p-5 bg-slate-50 rounded-lg bold-border hover:bg-maroon hover:text-white transition-all group">
-                                <span class="font-bold uppercase text-xs tracking-widest">Disney Travel Agents</span>
-                                <span class="text-lg">→</span>
-                            </a>
-                            <a href="https://www.expedia.com/TAAP-Registration" target="_blank" class="flex justify-between items-center p-5 bg-slate-50 rounded-lg bold-border hover:bg-maroon hover:text-white transition-all group">
-                                <span class="font-bold uppercase text-xs tracking-widest">Expedia TAAP</span>
-                                <span class="text-lg">→</span>
-                            </a>
-                            <a href="https://www.vaxvacationaccess.com/" target="_blank" class="flex justify-between items-center p-5 bg-slate-50 rounded-lg bold-border hover:bg-maroon hover:text-white transition-all group">
-                                <span class="font-bold uppercase text-xs tracking-widest">VAX VacationAccess</span>
-                                <span class="text-lg">→</span>
-                            </a>
+                        <div class="grid grid-cols-1 gap-6">
+                            
+                            <div class="vendor-card">
+                                <div class="vendor-tooltip text-xs font-bold space-y-2">
+                                    <p class="text-gold uppercase tracking-tighter italic">Login Info:</p>
+                                    <p>Agency CLIA: <span class="text-white select-all underline">00049281</span></p>
+                                    <p>Note: Requires individual agent login setup by Zach.</p>
+                                </div>
+                                <a href="https://www.cruisingpower.com/" target="_blank" class="flex justify-between items-center p-5 bg-slate-50 rounded bold-border hover:bg-maroon hover:text-white transition-all group">
+                                    <span class="font-bold uppercase text-xs tracking-widest">CruisingPower (Royal/Celebrity)</span>
+                                    <span class="text-lg">→</span>
+                                </a>
+                            </div>
+
+                            <div class="vendor-card">
+                                <div class="vendor-tooltip text-xs font-bold space-y-2">
+                                    <p class="text-gold uppercase tracking-tighter italic">Login Info:</p>
+                                    <p>Agency CLIA: <span class="text-white select-all underline">00049281</span></p>
+                                    <p>Note: Access is granted after agency approval is finalized.</p>
+                                </div>
+                                <a href="https://www.disneytravelagents.com/" target="_blank" class="flex justify-between items-center p-5 bg-slate-50 rounded bold-border hover:bg-maroon hover:text-white transition-all group">
+                                    <span class="font-bold uppercase text-xs tracking-widest">Disney Travel Agents</span>
+                                    <span class="text-lg">→</span>
+                                </a>
+                            </div>
+
+                            <div class="vendor-card">
+                                <div class="vendor-tooltip text-xs font-bold space-y-2">
+                                    <p class="text-gold uppercase tracking-tighter italic">Login Info:</p>
+                                    <p>Agency CLIA: <span class="text-white select-all underline">00049281</span></p>
+                                    <p>Username: Your individual agent email.</p>
+                                </div>
+                                <a href="https://www.expedia.com/TAAP-Registration" target="_blank" class="flex justify-between items-center p-5 bg-slate-50 rounded bold-border hover:bg-maroon hover:text-white transition-all group">
+                                    <span class="font-bold uppercase text-xs tracking-widest">Expedia TAAP</span>
+                                    <span class="text-lg">→</span>
+                                </a>
+                            </div>
+
                         </div>
                     </div>
 
                     <div class="bg-obsidian p-10 rounded-lg bold-border shadow-xl text-white">
-                        <h2 class="text-xl font-black italic text-gold mb-8 border-b-2 border-white/20 pb-4">🌴 Scallywag's FAQ</h2>
+                        <h2 class="text-xl font-black italic text-slate-300 mb-8 border-b-2 border-white/20 pb-4">🌴 Scallywag's FAQ</h2>
                         <div class="space-y-6">
                             <div>
                                 <h4 class="text-xs font-black uppercase tracking-widest text-maroon bg-white inline-block px-2 py-1 mb-2">How do I get paid?</h4>
                                 <p class="text-sm text-slate-300 leading-relaxed italic">"Commissions are paid on the 15th and the last day of the month for all bookings that have completed travel."</p>
                             </div>
                             <div>
-                                <h4 class="text-xs font-black uppercase tracking-widest text-maroon bg-white inline-block px-2 py-1 mb-2">When do I log a booking?</h4>
-                                <p class="text-sm text-slate-300 leading-relaxed italic">"Log your gross commission here as soon as you receive the confirmation from the vendor. We track it from there!"</p>
-                            </div>
-                            <div>
-                                <h4 class="text-xs font-black uppercase tracking-widest text-maroon bg-white inline-block px-2 py-1 mb-2">Missing a vendor?</h4>
-                                <p class="text-sm text-slate-300 leading-relaxed italic">"If you need access to a specific supplier not listed in the Archives, contact Captain Zach directly for registration."</p>
+                                <h4 class="text-xs font-black uppercase tracking-widest text-maroon bg-white inline-block px-2 py-1 mb-2">Agency CLIA Number</h4>
+                                <p class="text-sm text-slate-300 leading-relaxed italic font-bold">Your primary login credential for most vendors is CLIA: 00049281.</p>
                             </div>
                         </div>
                     </div>
@@ -332,7 +380,7 @@
             }
             if (myChart) myChart.destroy();
             const ctx = document.getElementById('earningsChart').getContext('2d');
-            myChart = new Chart(ctx, { type: 'bar', data: { labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'], datasets: [{ label: 'Revenue', data: months, backgroundColor: '#800000', borderRadius: 0 }] }, options: { maintainAspectRatio: false, plugins: { legend: { display: false } }, scales: { y: { beginAtZero: true, grid: { display: false }, ticks: { font: { size: 9 } } }, x: { grid: { display: false }, ticks: { font: { size: 9 } } } } } });
+            myChart = new Chart(ctx, { type: 'bar', data: { labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'], datasets: [{ label: 'Revenue' , data: months, backgroundColor: '#800000', borderRadius: 0 }] }, options: { maintainAspectRatio: false, plugins: { legend: { display: false } }, scales: { y: { beginAtZero: true, grid: { display: false }, ticks: { font: { size: 9 } } }, x: { grid: { display: false }, ticks: { font: { size: 9 } } } } } });
         }
     </script>
 </body>
