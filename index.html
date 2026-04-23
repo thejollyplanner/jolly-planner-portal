@@ -25,36 +25,14 @@
         .input-field:focus { border-color: #800000 !important; outline: none; box-shadow: 0 0 0 3px rgba(128, 0, 0, 0.1); }
         .nav-tab.active { background-color: #ffffff; color: #800000; border-bottom: 4px solid #000000; }
         
-        /* Tooltip Logic */
         .vendor-card { position: relative; }
         .vendor-tooltip { 
-            visibility: hidden; 
-            position: absolute; 
-            bottom: 110%; 
-            left: 50%; 
-            transform: translateX(-50%); 
-            width: 240px; 
-            background-color: #1a1a1a; 
-            color: white; 
-            padding: 15px; 
-            border-radius: 8px; 
-            border: 2px solid #000000;
-            z-index: 50;
-            opacity: 0;
-            transition: opacity 0.3s;
-            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.3);
+            visibility: hidden; position: absolute; bottom: 110%; left: 50%; transform: translateX(-50%); 
+            width: 280px; background-color: #1a1a1a; color: white; padding: 18px; border-radius: 4px; border: 2.5px solid #000000;
+            z-index: 50; opacity: 0; transition: opacity 0.3s; box-shadow: 0 10px 25px rgba(0, 0, 0, 0.4);
         }
         .vendor-card:hover .vendor-tooltip { visibility: visible; opacity: 1; }
-        .vendor-tooltip::after {
-            content: "";
-            position: absolute;
-            top: 100%;
-            left: 50%;
-            margin-left: -8px;
-            border-width: 8px;
-            border-style: solid;
-            border-color: #1a1a1a transparent transparent transparent;
-        }
+        .vendor-tooltip::after { content: ""; position: absolute; top: 100%; left: 50%; margin-left: -8px; border-width: 8px; border-style: solid; border-color: #1a1a1a transparent transparent transparent; }
 
         .modal-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.85); z-index: 100; backdrop-filter: blur(10px); }
         .modal-content { position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 95%; max-width: 500px; z-index: 101; }
@@ -145,14 +123,8 @@
                 </div>
 
                 <div class="bg-white p-6 rounded-lg shadow-sm bold-border mb-8 flex flex-wrap items-end gap-6">
-                    <div class="flex flex-col flex-1 min-w-[200px]"><label class="text-[9px] font-bold text-slate-400 uppercase mb-2">Search</label><input id="search-input" oninput="fetchBookings()" type="text" placeholder="Search Manifest..." class="input-field bold-border p-3 text-xs"></div>
+                    <div class="flex flex-col flex-1 min-w-[200px]"><label class="text-[9px] font-bold text-slate-400 uppercase mb-2">Search Manifest</label><input id="search-input" oninput="fetchBookings()" type="text" placeholder="Search..." class="input-field bold-border p-3 text-xs"></div>
                     <div class="flex flex-col"><label class="text-[9px] font-bold text-slate-400 uppercase mb-2">Year</label><select id="year-filter" onchange="fetchBookings()" class="input-field bold-border p-3 text-xs"></select></div>
-                    <div id="admin-payroll-filter" class="hidden flex flex-col">
-                        <label class="text-[9px] font-bold text-maroon uppercase mb-2">Payroll Audit</label>
-                        <select id="payroll-period" onchange="updatePayrollMode()" class="input-field bold-border p-3 text-xs font-bold border-maroon text-maroon">
-                            <option value="off">View: All Data</option><option value="last">Last Pay Period</option><option value="current">Current Period</option><option value="next">Next Period</option>
-                        </select>
-                    </div>
                     <div class="flex flex-col">
                         <label class="text-[9px] font-bold text-slate-400 uppercase mb-2">Status</label>
                         <div class="flex bg-slate-100 p-1 rounded bold-border">
@@ -162,7 +134,6 @@
                         </div>
                     </div>
                 </div>
-
                 <div class="bg-white rounded-lg shadow-sm bold-border overflow-hidden">
                     <table class="w-full text-left">
                         <thead class="bg-slate-50 text-[10px] uppercase font-bold text-slate-400 border-b-2 border-black">
@@ -174,63 +145,97 @@
             </div>
 
             <div id="tab-archives" class="tab-content">
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-10">
-                    <div class="bg-white p-10 rounded-lg bold-border shadow-sm">
-                        <h2 class="text-xl font-black italic text-maroon mb-8 border-b-2 border-black pb-4">🌴 Vendor Portals</h2>
-                        <div class="grid grid-cols-1 gap-6">
-                            
-                            <div class="vendor-card">
-                                <div class="vendor-tooltip text-xs font-bold space-y-2">
-                                    <p class="text-gold uppercase tracking-tighter italic">Login Info:</p>
-                                    <p>Agency CLIA: <span class="text-white select-all underline">00049281</span></p>
-                                    <p>Note: Requires individual agent login setup by Zach.</p>
+                <div class="grid grid-cols-1 lg:grid-cols-3 gap-10">
+                    
+                    <div class="lg:col-span-1 space-y-10">
+                        <div class="bg-white p-8 rounded-lg bold-border shadow-sm">
+                            <h2 class="text-lg font-black italic text-maroon mb-6 border-b-2 border-black pb-2">⚓ The Quartermaster's Log</h2>
+                            <div class="space-y-6 text-sm">
+                                <div>
+                                    <h4 class="font-black text-[10px] uppercase text-slate-500 mb-2">Commission Levels</h4>
+                                    <ul class="space-y-1 italic text-slate-700">
+                                        <li>$0 - $4,999.99: 70%</li>
+                                        <li>$5,000 - $14,999.99: 75%</li>
+                                        <li>$15,000 - $49,999.99: 80%</li>
+                                        <li>$50,000+: 85%</li>
+                                    </ul>
                                 </div>
-                                <a href="https://www.cruisingpower.com/" target="_blank" class="flex justify-between items-center p-5 bg-slate-50 rounded bold-border hover:bg-maroon hover:text-white transition-all group">
-                                    <span class="font-bold uppercase text-xs tracking-widest">CruisingPower (Royal/Celebrity)</span>
-                                    <span class="text-lg">→</span>
-                                </a>
-                            </div>
-
-                            <div class="vendor-card">
-                                <div class="vendor-tooltip text-xs font-bold space-y-2">
-                                    <p class="text-gold uppercase tracking-tighter italic">Login Info:</p>
-                                    <p>Agency CLIA: <span class="text-white select-all underline">00049281</span></p>
-                                    <p>Note: Access is granted after agency approval is finalized.</p>
+                                <div class="pt-4 border-t border-slate-100">
+                                    <h4 class="font-black text-[10px] uppercase text-slate-500 mb-2">CLIA Benefits</h4>
+                                    <p class="text-xs text-slate-600 leading-relaxed italic">Once paid $600+ in a calendar year, you are eligible for the Individual Agent CLIA Card (~$139) for travel discounts.</p>
                                 </div>
-                                <a href="https://www.disneytravelagents.com/" target="_blank" class="flex justify-between items-center p-5 bg-slate-50 rounded bold-border hover:bg-maroon hover:text-white transition-all group">
-                                    <span class="font-bold uppercase text-xs tracking-widest">Disney Travel Agents</span>
-                                    <span class="text-lg">→</span>
-                                </a>
-                            </div>
-
-                            <div class="vendor-card">
-                                <div class="vendor-tooltip text-xs font-bold space-y-2">
-                                    <p class="text-gold uppercase tracking-tighter italic">Login Info:</p>
-                                    <p>Agency CLIA: <span class="text-white select-all underline">00049281</span></p>
-                                    <p>Username: Your individual agent email.</p>
+                                <div class="pt-4 border-t border-slate-100">
+                                    <h4 class="font-black text-[10px] uppercase text-slate-500 mb-2">Gmail Tips</h4>
+                                    <p class="text-xs text-slate-600 italic">"Star your supplier confirmations and label them 'COMMISSION' for easy manifest logging."</p>
                                 </div>
-                                <a href="https://www.expedia.com/TAAP-Registration" target="_blank" class="flex justify-between items-center p-5 bg-slate-50 rounded bold-border hover:bg-maroon hover:text-white transition-all group">
-                                    <span class="font-bold uppercase text-xs tracking-widest">Expedia TAAP</span>
-                                    <span class="text-lg">→</span>
-                                </a>
                             </div>
-
                         </div>
                     </div>
 
-                    <div class="bg-obsidian p-10 rounded-lg bold-border shadow-xl text-white">
-                        <h2 class="text-xl font-black italic text-slate-300 mb-8 border-b-2 border-white/20 pb-4">🌴 Scallywag's FAQ</h2>
-                        <div class="space-y-6">
-                            <div>
-                                <h4 class="text-xs font-black uppercase tracking-widest text-maroon bg-white inline-block px-2 py-1 mb-2">How do I get paid?</h4>
-                                <p class="text-sm text-slate-300 leading-relaxed italic">"Commissions are paid on the 15th and the last day of the month for all bookings that have completed travel."</p>
-                            </div>
-                            <div>
-                                <h4 class="text-xs font-black uppercase tracking-widest text-maroon bg-white inline-block px-2 py-1 mb-2">Agency CLIA Number</h4>
-                                <p class="text-sm text-slate-300 leading-relaxed italic font-bold">Your primary login credential for most vendors is CLIA: 00049281.</p>
+                    <div class="lg:col-span-1 space-y-8">
+                        <div class="bg-white p-8 rounded-lg bold-border shadow-sm">
+                            <h2 class="text-lg font-black italic text-maroon mb-8 border-b-2 border-black pb-2">🌴 The Merchant's Row</h2>
+                            <div class="space-y-4">
+                                <div class="vendor-card">
+                                    <div class="vendor-tooltip text-[10px] font-bold space-y-2">
+                                        <p class="text-maroon uppercase italic">CruisingPower Briefing</p>
+                                        <p>Brands: Royal Caribbean, Celebrity, Silversea</p>
+                                        <p>CLIA: <span class="bg-white text-black px-1 font-mono">00847663</span></p>
+                                    </div>
+                                    <a href="https://www.cruisingpower.com/" target="_blank" class="flex justify-between items-center p-4 bg-slate-50 rounded bold-border hover:bg-maroon hover:text-white transition-all group">
+                                        <span class="font-bold uppercase text-[10px] tracking-widest">CruisingPower</span>
+                                        <span>→</span>
+                                    </a>
+                                </div>
+                                <div class="vendor-card">
+                                    <div class="vendor-tooltip text-[10px] font-bold space-y-2">
+                                        <p class="text-maroon uppercase italic">Disney Portal Briefing</p>
+                                        <p>CLIA: <span class="bg-white text-black px-1 font-mono">00847663</span></p>
+                                        <p>Note: Set up individual profile after agency approval.</p>
+                                    </div>
+                                    <a href="https://www.disneytravelagents.com/" target="_blank" class="flex justify-between items-center p-4 bg-slate-50 rounded bold-border hover:bg-maroon hover:text-white transition-all group">
+                                        <span class="font-bold uppercase text-[10px] tracking-widest">Disney Travel Agents</span>
+                                        <span>→</span>
+                                    </a>
+                                </div>
+                                <div class="vendor-card">
+                                    <div class="vendor-tooltip text-[10px] font-bold space-y-2">
+                                        <p class="text-maroon uppercase italic">Expedia TAAP Briefing</p>
+                                        <p>CLIA: <span class="bg-white text-black px-1 font-mono">00847663</span></p>
+                                    </div>
+                                    <a href="https://www.expedia.com/TAAP-Registration" target="_blank" class="flex justify-between items-center p-4 bg-slate-50 rounded bold-border hover:bg-maroon hover:text-white transition-all group">
+                                        <span class="font-bold uppercase text-[10px] tracking-widest">Expedia TAAP</span>
+                                        <span>→</span>
+                                    </a>
+                                </div>
                             </div>
                         </div>
                     </div>
+
+                    <div class="lg:col-span-1 space-y-10">
+                        <div class="bg-obsidian p-8 rounded-lg bold-border shadow-xl text-white">
+                            <h2 class="text-lg font-black italic text-slate-300 mb-6 border-b-2 border-white/20 pb-2">🌴 The Captain's Code</h2>
+                            <div class="space-y-6">
+                                <div>
+                                    <h4 class="text-[9px] font-black uppercase tracking-widest text-maroon bg-white inline-block px-2 py-0.5 mb-2">Payout Schedule</h4>
+                                    <p class="text-[11px] text-slate-300 italic leading-relaxed">"You are paid on the first pay day after the agency has received the funds and the client has traveled."</p>
+                                </div>
+                                <div>
+                                    <h4 class="text-[9px] font-black uppercase tracking-widest text-maroon bg-white inline-block px-2 py-0.5 mb-2">Protected Commission</h4>
+                                    <p class="text-[11px] text-slate-300 italic leading-relaxed">"If a client cancels and the vendor protects commission, it will be paid out as normal once the agency receives it."</p>
+                                </div>
+                                <div>
+                                    <h4 class="text-[9px] font-black uppercase tracking-widest text-maroon bg-white inline-block px-2 py-0.5 mb-2">Booking Transfers</h4>
+                                    <p class="text-[11px] text-slate-300 italic leading-relaxed">"Bookings made directly by clients can be transferred to the agency within 30 days of booking (excluding Disney)."</p>
+                                </div>
+                                <div class="pt-6 border-t border-white/10">
+                                    <p class="text-[9px] font-bold uppercase text-slate-500 mb-2 tracking-widest">Agency Credentials</p>
+                                    <p class="text-xl font-black text-white italic font-mono">CLIA: 00847663</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
                 </div>
             </div>
 
@@ -243,7 +248,6 @@
         const _supabase = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
         const ADMIN_EMAIL = 'thejollyplannerta@gmail.com'; 
         let currentAgent = null; let selectedStatus = 'all'; let myChart = null; let globalData = [];
-        let payrollSelection = 'off';
 
         function switchTab(tabName) {
             document.querySelectorAll('.tab-content').forEach(tab => tab.classList.remove('active'));
@@ -261,8 +265,6 @@
             yearSelect.innerHTML = options;
         }
 
-        function updatePayrollMode() { payrollSelection = document.getElementById('payroll-period').value; if(payrollSelection !== 'off') setStatusFilter('Pending'); else fetchBookings(); }
-
         async function attemptLogin() {
             const email = document.getElementById('login_email').value.trim();
             const pass = document.getElementById('login_pass').value.trim();
@@ -275,7 +277,6 @@
                 if(email.toLowerCase() === ADMIN_EMAIL.toLowerCase()) {
                     document.getElementById('admin-revenue-box').classList.remove('hidden');
                     document.getElementById('agency-col-head').classList.remove('hidden');
-                    document.getElementById('admin-payroll-filter').classList.remove('hidden');
                     document.getElementById('payout-label').innerText = "Agent Payouts";
                 } else { document.getElementById('payday-tracker').classList.remove('hidden'); }
                 fetchBookings();
@@ -324,34 +325,21 @@
         function renderLedger(data, agentData) {
             const list = document.getElementById('bookings-list'); list.innerHTML = '';
             const isAdmin = currentAgent.email.toLowerCase() === ADMIN_EMAIL.toLowerCase();
-            const now = new Date();
-            const getWindow = (offset) => {
-                let d = new Date(); d.setDate(d.getDate() + (offset * 15));
-                const start = d.getDate() <= 15 ? new Date(d.getFullYear(), d.getMonth(), 1) : new Date(d.getFullYear(), d.getMonth(), 16);
-                const end = d.getDate() <= 15 ? new Date(d.getFullYear(), d.getMonth(), 15) : new Date(d.getFullYear(), d.getMonth() + 1, 0);
-                return { start, end };
-            };
-            let range = payrollSelection === 'last' ? getWindow(-1) : (payrollSelection === 'current' ? getWindow(0) : getWindow(1));
-
             data.forEach(row => {
-                const tDate = new Date(row.travel_date);
-                if (payrollSelection !== 'off' && isAdmin && (tDate < range.start || tDate > range.end)) return;
                 const agent = agentData.find(a => `${a.first_name} ${a.last_name}` === row.agent_name);
                 const rate = agent ? agent.commission_rate : 0.7;
                 const agentPayout = (row.amount * rate).toFixed(2);
                 const agencyShare = (row.amount * (1 - rate)).toFixed(2);
                 const isPaid = row.status === 'Paid';
-                
                 let actionHtml = `<div class="flex items-center justify-end space-x-3">`;
                 if(isPaid) {
-                    actionHtml += `<span class="text-[9px] font-bold text-green-600 bg-green-50 px-3 py-1 rounded-full uppercase bold-border">Paid</span>`;
+                    actionHtml += `<span class="text-[9px] font-bold text-green-600 bg-green-50 px-3 py-1 rounded uppercase bold-border">Paid</span>`;
                     if(isAdmin) actionHtml += `<button onclick="updateStatus(${row.id}, 'Pending')" class="text-[9px] text-slate-400 hover:text-maroon underline font-bold">Undo</button>`;
                 } else if(isAdmin) {
                     actionHtml += `<button onclick="updateStatus(${row.id}, 'Paid')" class="bg-maroon text-white text-[9px] font-bold px-4 py-1.5 rounded hover:bg-black bold-border">Mark Paid</button>`;
                     actionHtml += `<button onclick="deleteBooking(${row.id})" class="text-[9px] text-slate-400 hover:text-red-600 font-bold">Remove</button>`;
                 } else { 
-                    actionHtml += `<span class="text-[9px] font-bold text-slate-400 bg-slate-100 px-3 py-1 rounded-full uppercase bold-border">${row.status}</span>`; 
-                    // Restoration: Agents can remove their own Pending bookings
+                    actionHtml += `<span class="text-[9px] font-bold text-slate-400 bg-slate-100 px-3 py-1 rounded uppercase bold-border">${row.status}</span>`; 
                     if (!isAdmin && row.agent_name === `${currentAgent.first_name} ${currentAgent.last_name}`) {
                         actionHtml += `<button onclick="deleteBooking(${row.id})" class="text-[9px] text-slate-400 hover:text-red-600 font-bold">Cancel</button>`;
                     }
