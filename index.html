@@ -9,44 +9,45 @@
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,900;1,900&family=Inter:wght@400;600;800&display=swap');
-        
         body { font-family: 'Inter', sans-serif; background-color: #f1f5f9; }
-        h1, h2, h3, h4, .serif { font-family: 'Playfair Display', serif; }
-        
+        h1, h2, h3, h4 { font-family: 'Playfair Display', serif; }
         .bg-maroon { background-color: #800000; }
         .bg-obsidian { background-color: #1a1a1a; } 
         .bold-border { border: 2.5px solid #000000 !important; }
-        
         #portal-content { display: none; }
         .tab-content { display: none; }
         .tab-content.active { display: block; }
-        
-        .input-field { background-color: #ffffff !important; color: #1a1a1a !important; transition: all 0.2s; border-radius: 4px; }
-        .input-field:focus { border-color: #800000 !important; outline: none; box-shadow: 0 0 0 3px rgba(128, 0, 0, 0.1); }
-        
-        .nav-tab { color: rgba(255,255,255,0.6); font-weight: 800; text-transform: uppercase; font-size: 10px; letter-spacing: 0.1em; transition: all 0.2s; padding: 8px 16px; border-radius: 4px; }
+        .input-field { background-color: #ffffff !important; border: 2.5px solid #000000; color: #1a1a1a !important; border-radius: 4px; padding: 12px; }
+        .nav-tab { color: rgba(255,255,255,0.6); font-weight: 800; text-transform: uppercase; font-size: 10px; letter-spacing: 0.1em; padding: 8px 16px; border-radius: 4px; transition: all 0.2s; }
         .nav-tab:hover { color: white; background: rgba(255,255,255,0.1); }
         .nav-tab.active { color: #800000; background: white; }
-        
         .vendor-card { position: relative; }
-        .vendor-tooltip { 
-            visibility: hidden; position: absolute; bottom: 110%; left: 50%; transform: translateX(-50%); 
-            width: 280px; background-color: #1a1a1a; color: white; padding: 18px; border-radius: 4px; border: 2.5px solid #000000;
-            z-index: 50; opacity: 0; transition: opacity 0.3s; box-shadow: 0 10px 25px rgba(0, 0, 0, 0.4);
-        }
+        .vendor-tooltip { visibility: hidden; position: absolute; bottom: 110%; left: 50%; transform: translateX(-50%); width: 280px; background-color: #1a1a1a; color: white; padding: 18px; border-radius: 4px; border: 2.5px solid #000000; z-index: 50; opacity: 0; transition: opacity 0.3s; box-shadow: 0 10px 25px rgba(0,0,0,0.4); }
         .vendor-card:hover .vendor-tooltip { visibility: visible; opacity: 1; }
-        .vendor-tooltip::after { content: ""; position: absolute; top: 100%; left: 50%; margin-left: -8px; border-width: 8px; border-style: solid; border-color: #1a1a1a transparent transparent transparent; }
+        .modal-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.85); z-index: 100; backdrop-filter: blur(10px); }
+        .modal-content { position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 95%; max-width: 500px; z-index: 101; }
     </style>
 </head>
 <body class="text-slate-900">
 
+    <div id="details-modal" class="modal-overlay" onclick="closeModal()">
+        <div class="modal-content bg-white p-10 rounded-lg bold-border shadow-2xl" onclick="event.stopPropagation()">
+            <div class="flex justify-between items-center mb-8 border-b-2 border-black pb-4">
+                <h2 class="text-xl font-black italic text-maroon">🌴 Voyage Manifest</h2>
+                <button onclick="closeModal()" class="text-slate-400 hover:text-maroon text-2xl">×</button>
+            </div>
+            <div id="modal-body" class="space-y-6 text-sm font-semibold"></div>
+            <button onclick="closeModal()" class="w-full mt-10 bg-obsidian text-white font-bold py-4 rounded uppercase text-[10px] bold-border">Close Manifest</button>
+        </div>
+    </div>
+
     <div id="login-screen" class="fixed inset-0 bg-obsidian z-50 flex items-center justify-center p-6">
         <div class="bg-white p-12 rounded-lg bold-border shadow-2xl max-w-md w-full text-center">
             <img src="logo.png" alt="Logo" class="h-60 w-auto mx-auto mb-8">
-            <h1 class="text-3xl font-black mb-2 italic">Agent Portal</h1>
-            <input id="login_email" type="email" placeholder="Email Address" class="w-full input-field bold-border p-4 mb-4 text-sm font-bold">
-            <input id="login_pass" type="password" placeholder="Passkey" class="w-full input-field bold-border p-4 mb-8 text-sm font-bold">
-            <button onclick="attemptLogin()" class="w-full bg-maroon text-white font-bold py-4 rounded hover:bg-black transition-all shadow-lg uppercase text-xs tracking-widest bold-border">Authorize Access</button>
+            <h1 class="text-3xl font-black mb-10 italic">Agent Portal</h1>
+            <input id="login_email" type="email" placeholder="Email Address" class="w-full input-field mb-4 font-bold">
+            <input id="login_pass" type="password" placeholder="Passkey" class="w-full input-field mb-8 font-bold">
+            <button onclick="attemptLogin()" class="w-full bg-maroon text-white font-bold py-4 rounded hover:bg-black uppercase text-xs tracking-widest bold-border">Authorize Access</button>
         </div>
     </div>
 
@@ -56,14 +57,13 @@
                 <img src="logo.png" alt="Logo" class="h-28 w-auto bg-white p-2 rounded bold-border">
                 <div class="text-3xl font-black italic">The Jolly Planner</div>
             </div>
-            
             <div class="flex flex-col items-end space-y-2">
                 <div class="flex items-center space-x-4">
-                    <div id="payday-tracker" class="hidden text-right border-r-2 border-white/20 pr-4 mr-2">
+                    <div id="payday-tracker" class="hidden text-right border-r-2 border-white/20 pr-4">
                         <p class="text-[8px] uppercase font-bold text-slate-300">Next Payday: <span id="payday-date" class="text-white"></span></p>
                         <p class="text-[10px] font-bold">Est: <span id="est-payout-val" class="text-white underline">$0.00</span></p>
                     </div>
-                    <div id="agent-welcome" class="text-[9px] font-bold uppercase tracking-widest bg-white/10 px-5 py-2 rounded-full border-2 border-white"></div>
+                    <div id="agent-welcome" class="text-[9px] font-bold uppercase bg-white/10 px-5 py-2 rounded-full border-2 border-white"></div>
                 </div>
                 <div class="flex space-x-2">
                     <button onclick="switchTab('deck')" id="tab-btn-deck" class="nav-tab active">The Deck</button>
@@ -73,7 +73,6 @@
         </nav>
 
         <main class="p-10 max-w-7xl mx-auto">
-            
             <div id="tab-deck" class="tab-content active">
                 <div class="grid grid-cols-1 lg:grid-cols-3 gap-8 mb-12">
                     <div class="bg-white p-8 rounded-lg shadow-sm bold-border">
@@ -83,6 +82,10 @@
                     <div class="bg-maroon p-8 rounded-lg shadow-xl text-white flex flex-col justify-center bold-border">
                         <p id="payout-label" class="text-[10px] font-bold uppercase tracking-widest opacity-80 mb-2">Total Payouts</p>
                         <h3 class="text-3xl font-black italic">$<span id="total-payout">0.00</span></h3>
+                        <div id="admin-revenue-box" class="hidden mt-6 pt-6 border-t-2 border-white/20">
+                            <p class="text-[10px] font-bold uppercase tracking-widest text-slate-300 mb-2">Agency Net (30%)</p>
+                            <h4 id="agency-revenue" class="text-xl font-black italic text-white">$0.00</h4>
+                        </div>
                     </div>
                     <div class="bg-obsidian p-8 rounded-lg shadow-xl text-white flex flex-col justify-center bold-border">
                         <p class="text-[10px] font-bold uppercase tracking-widest opacity-80 mb-2">Active Voyages</p>
@@ -90,27 +93,25 @@
                     </div>
                 </div>
 
-                <div class="bg-white p-10 rounded-lg shadow-sm bold-border mb-12">
+                <div class="bg-white p-10 rounded-lg bold-border mb-12">
                     <h2 class="text-2xl font-black italic text-maroon mb-8">🌴 Log New Commission</h2>
                     <form id="bookingForm" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 text-sm font-bold">
-                        <div class="flex flex-col"><label class="text-[10px] font-bold text-slate-400 mb-2 uppercase">Client Name</label><input id="client_name" type="text" class="input-field bold-border p-3"></div>
-                        <div class="flex flex-col"><label class="text-[10px] font-bold text-slate-400 mb-2 uppercase">Supplier</label>
-                            <select id="supplier" class="input-field bold-border p-3">
-                                <option value="">Select Supplier</option><option value="Disney">Disney</option><option value="Royal Caribbean">Royal Caribbean</option><option value="Carnival">Carnival</option><option value="Norwegian">Norwegian</option><option value="Sandals">Sandals</option><option value="Universal">Universal</option><option value="Other">Other</option>
-                            </select>
-                        </div>
-                        <div class="flex flex-col"><label class="text-[10px] font-bold text-slate-400 mb-2 uppercase">Confirmation #</label><input id="booking_no" type="text" class="input-field bold-border p-3"></div>
-                        <div class="flex flex-col"><label class="text-[10px] font-bold text-maroon mb-2 uppercase">Gross Commission $</label><input id="amount" type="number" step="0.01" class="input-field bold-border p-3 font-bold"></div>
-                        <div class="flex flex-col"><label class="text-[10px] font-bold text-slate-400 mb-2 uppercase">Travel Date</label><input id="travel_date" type="date" class="input-field bold-border p-3"></div>
-                        <div class="flex flex-col lg:col-span-2"><label class="text-[10px] font-bold text-slate-400 mb-2 uppercase">Notes</label><input id="notes" type="text" class="input-field bold-border p-3"></div>
-                        <div class="flex flex-col justify-end"><button type="button" onclick="saveBooking()" class="bg-maroon text-white font-bold py-3 rounded hover:bg-black transition-all uppercase text-[10px] tracking-widest bold-border shadow-md">Submit Log</button></div>
+                        <input id="client_name" type="text" placeholder="Client Name" class="input-field">
+                        <select id="supplier" class="input-field">
+                            <option value="">Select Supplier</option><option value="Disney">Disney</option><option value="Royal Caribbean">Royal Caribbean</option><option value="Carnival">Carnival</option><option value="Norwegian">Norwegian</option><option value="Sandals">Sandals</option><option value="Universal">Universal</option><option value="Princess">Princess</option><option value="Virgin">Virgin</option>
+                        </select>
+                        <input id="booking_no" type="text" placeholder="Confirmation #" class="input-field">
+                        <input id="amount" type="number" step="0.01" placeholder="Gross Commission $" class="input-field">
+                        <input id="travel_date" type="date" class="input-field">
+                        <input id="notes" type="text" placeholder="Internal Notes" class="input-field lg:col-span-2">
+                        <button type="button" onclick="saveBooking()" class="bg-maroon text-white font-bold py-3 rounded bold-border uppercase text-[10px]">Submit Log</button>
                     </form>
                 </div>
 
                 <div class="bg-white rounded-lg shadow-sm bold-border overflow-hidden">
                     <table class="w-full text-left">
                         <thead class="bg-slate-50 text-[10px] uppercase font-bold text-slate-400 border-b-2 border-black">
-                            <tr><th class="py-5 px-8">Agent</th><th class="py-5 px-8">Client</th><th class="py-5 px-8">Commission</th><th class="py-5 px-8 text-right">Status</th></tr>
+                            <tr><th class="py-5 px-8">Agent</th><th class="py-5 px-8">Client</th><th class="py-5 px-8">Commission</th><th class="py-5 px-8 text-right">Actions</th></tr>
                         </thead>
                         <tbody id="bookings-list" class="text-sm font-semibold"></tbody>
                     </table>
@@ -119,72 +120,42 @@
 
             <div id="tab-archives" class="tab-content">
                 <div class="grid grid-cols-1 lg:grid-cols-3 gap-10">
-                    
                     <div class="lg:col-span-1 space-y-10">
                         <div class="bg-white p-8 rounded-lg bold-border shadow-sm">
-                            <h2 class="text-2xl font-black italic text-maroon mb-6 border-b-2 border-black pb-2">⚓ The Quartermaster's Log</h2>
-                            <div class="space-y-6 text-sm">
-                                <div>
-                                    <h4 class="font-black text-[10px] uppercase text-slate-500 mb-2">Commission Levels</h4>
-                                    <ul class="space-y-1 italic text-slate-700">
-                                        <li>$0 - $4,999.99: 70%</li>
-                                        <li>$5,000 - $14,999.99: 75%</li>
-                                        <li>$15,000 - $49,999.99: 80%</li>
-                                        <li>$50,000+: 85%</li>
-                                    </ul>
-                                </div>
-                                <div class="pt-4 border-t border-slate-100">
-                                    <h4 class="font-black text-[10px] uppercase text-slate-500 mb-2">Individual CLIA Card</h4>
-                                    <p class="text-xs text-slate-600 leading-relaxed italic mb-4">Agents who earn <strong>$600+</strong> in commission within a calendar year are eligible to apply for their own CLIA Card for industry perks.</p>
-                                    <a href="https://cruising.org/" target="_blank" class="block w-full bg-obsidian text-white font-bold py-3 rounded text-center hover:bg-maroon transition-all uppercase text-[9px] tracking-widest bold-border">Visit Cruise International</a>
+                            <h2 class="text-2xl font-black italic text-maroon mb-6 border-b-2 border-black pb-2">⚓ Quartermaster's Log</h2>
+                            <div class="space-y-6 text-sm italic text-slate-700">
+                                <p><strong>$0 - $4,999:</strong> 70% split</p>
+                                <p><strong>$5,000 - $14,999:</strong> 75% split</p>
+                                <p><strong>$15,000+:</strong> 80% split</p>
+                                <div class="pt-4 border-t border-black/10">
+                                    <h4 class="font-black text-[10px] uppercase text-slate-400 mb-2 italic">CLIA Card Requirements</h4>
+                                    <p>Earn $600+ in commission to apply for your Individual Agent Card at <a href="https://cruising.org/" target="_blank" class="text-maroon underline">Cruise International</a>.</p>
                                 </div>
                             </div>
                         </div>
                     </div>
-
                     <div class="lg:col-span-1 space-y-8">
                         <div class="bg-white p-8 rounded-lg bold-border shadow-sm">
-                            <h2 class="text-2xl font-black italic text-maroon mb-8 border-b-2 border-black pb-2">🌴 The Merchant's Row</h2>
+                            <h2 class="text-2xl font-black italic text-maroon mb-8 border-b-2 border-black pb-2">🌴 Merchant's Row</h2>
                             <div class="space-y-4">
-                                <div class="vendor-card">
-                                    <div class="vendor-tooltip text-[10px] font-bold space-y-2">
-                                        <p class="text-maroon uppercase italic">CruisingPower Briefing</p>
-                                        <p>CLIA: <span class="bg-white text-black px-1 font-mono">00847663</span></p>
-                                    </div>
-                                    <a href="https://www.cruisingpower.com/" target="_blank" class="flex justify-between items-center p-4 bg-slate-50 rounded bold-border hover:bg-maroon hover:text-white transition-all">
-                                        <span class="font-bold uppercase text-[10px] tracking-widest">CruisingPower</span>
-                                        <span>→</span>
-                                    </a>
-                                </div>
-                                <div class="vendor-card">
-                                    <div class="vendor-tooltip text-[10px] font-bold space-y-2">
-                                        <p class="text-maroon uppercase italic">Disney Portal Briefing</p>
-                                        <p>CLIA: <span class="bg-white text-black px-1 font-mono">00847663</span></p>
-                                    </div>
-                                    <a href="https://www.disneytravelagents.com/" target="_blank" class="flex justify-between items-center p-4 bg-slate-50 rounded bold-border hover:bg-maroon hover:text-white transition-all">
-                                        <span class="font-bold uppercase text-[10px] tracking-widest">Disney Travel Agents</span>
-                                        <span>→</span>
-                                    </a>
-                                </div>
+                                <div class="vendor-card"><div class="vendor-tooltip text-[10px] font-bold"><p>CLIA: 00847663</p></div><a href="https://www.cruisingpower.com/" target="_blank" class="flex justify-between items-center p-4 bg-slate-50 rounded bold-border hover:bg-maroon hover:text-white transition-all"><span>CruisingPower</span><span>→</span></a></div>
+                                <div class="vendor-card"><div class="vendor-tooltip text-[10px] font-bold"><p>CLIA: 00847663</p></div><a href="https://www.disneytravelagents.com/" target="_blank" class="flex justify-between items-center p-4 bg-slate-50 rounded bold-border hover:bg-maroon hover:text-white transition-all"><span>Disney Travel</span><span>→</span></a></div>
+                                <div class="vendor-card"><div class="vendor-tooltip text-[10px] font-bold"><p>CLIA: 00847663</p></div><a href="https://www.sandals.com/travel-agents/" target="_blank" class="flex justify-between items-center p-4 bg-slate-50 rounded bold-border hover:bg-maroon hover:text-white transition-all"><span>Sandals</span><span>→</span></a></div>
                             </div>
                         </div>
                     </div>
-
                     <div class="lg:col-span-1 space-y-10">
-                        <div class="bg-obsidian p-8 rounded-lg bold-border shadow-xl text-white h-fit sticky top-10">
-                            <h2 class="text-2xl font-black italic text-slate-300 mb-6 border-b-2 border-white/20 pb-2">🌴 The Captain's Code</h2>
+                        <div class="bg-obsidian p-8 rounded-lg bold-border shadow-xl text-white">
+                            <h2 class="text-2xl font-black italic text-slate-300 mb-6 border-b-2 border-white/20 pb-2">🌴 Captain's Code</h2>
                             <div class="space-y-6">
-                                <a href="https://docs.google.com/document/d/1YeXqTuxCG0ONQ0Gc1cYd1MqUwxysjoEoctrv2QavYnc/edit" target="_blank" class="block w-full bg-white text-maroon font-black py-4 rounded bold-border text-center hover:bg-maroon hover:text-white transition-all uppercase text-xs tracking-widest">Open Agency Handbook</a>
-                                <div class="pt-6 border-t border-white/10 text-center">
-                                    <p class="text-2xl font-black text-white italic font-mono tracking-wider">CLIA: 00847663</p>
-                                </div>
+                                <a href="https://docs.google.com/document/d/1YeXqTuxCG0ONQ0Gc1cYd1MqUwxysjoEoctrv2QavYnc/edit" target="_blank" class="block w-full bg-white text-maroon font-black py-4 rounded bold-border text-center hover:bg-maroon hover:text-white transition-all uppercase text-xs tracking-widest">Open Handbook Doc</a>
+                                <p class="text-xs text-slate-400 italic">"Payments are processed on the 15th and last day of each month. Voyages must be completed before payout."</p>
+                                <div class="pt-6 border-t border-white/10 text-center"><p class="text-2xl font-black italic font-mono">CLIA: 00847663</p></div>
                             </div>
                         </div>
                     </div>
-
                 </div>
             </div>
-
         </main>
     </div>
 
@@ -193,7 +164,7 @@
         const SUPABASE_KEY = 'sb_publishable_EwHbzlR1eSNaRrGCxRbdCQ_R_Djvc08';
         const _supabase = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
         const ADMIN_EMAIL = 'thejollyplannerta@gmail.com'; 
-        let currentAgent = null; let selectedStatus = 'all'; myChart = null; globalData = [];
+        let currentAgent = null; let myChart = null; let globalData = [];
 
         function switchTab(tabName) {
             document.querySelectorAll('.tab-content').forEach(tab => tab.classList.remove('active'));
@@ -208,47 +179,76 @@
             const pass = document.getElementById('login_pass').value.trim();
             const { data } = await _supabase.from('Agents').select('*').eq('email', email).eq('password', pass).single();
             if (data) {
-                currentAgent = data;
-                document.getElementById('login-screen').style.display = 'none';
+                currentAgent = data; document.getElementById('login-screen').style.display = 'none';
                 document.getElementById('portal-content').style.display = 'block';
                 document.getElementById('agent-welcome').innerText = `${data.first_name} ${data.last_name}`;
+                if(email.toLowerCase() === ADMIN_EMAIL.toLowerCase()) document.getElementById('admin-revenue-box').classList.remove('hidden');
+                else document.getElementById('payday-tracker').classList.remove('hidden');
                 fetchBookings();
             } else { alert("Access Denied Scallywag."); }
         }
 
         async function fetchBookings() {
             let query = _supabase.from('Bookings').select('*');
-            if (currentAgent.email.toLowerCase() !== ADMIN_EMAIL.toLowerCase()) {
-                query = query.eq('agent_name', `${currentAgent.first_name} ${currentAgent.last_name}`);
-            }
+            if (currentAgent.email.toLowerCase() !== ADMIN_EMAIL.toLowerCase()) query = query.eq('agent_name', `${currentAgent.first_name} ${currentAgent.last_name}`);
             const { data } = await query.order('created_at', { ascending: false });
             globalData = data;
             const { data: agentData } = await _supabase.from('Agents').select('first_name, last_name, commission_rate');
-            updateDashboard(data, agentData);
-            renderLedger(data, agentData);
+            updateDashboard(data, agentData); renderLedger(data, agentData);
         }
 
         function renderLedger(data, agentData) {
             const list = document.getElementById('bookings-list'); list.innerHTML = '';
             const isAdmin = currentAgent.email.toLowerCase() === ADMIN_EMAIL.toLowerCase();
             data.forEach(row => {
+                const agent = agentData.find(a => `${a.first_name} ${a.last_name}` === row.agent_name);
+                const rate = agent ? agent.commission_rate : 0.7;
                 const isPaid = row.status === 'Paid';
-                list.innerHTML += `<tr class="border-b hover:bg-slate-50 transition"><td class="py-4 px-8 font-semibold">${row.agent_name}</td><td class="py-4 px-8 text-slate-500">${row.client_name}</td><td class="py-4 px-8 font-bold text-slate-700">$${row.amount}</td><td class="py-4 px-8 text-right"><span class="text-[9px] font-bold ${isPaid ? 'text-green-600 bg-green-50' : 'text-slate-400 bg-slate-100'} px-3 py-1 rounded uppercase bold-border">${row.status}</span></td></tr>`;
+                let actionHtml = `<div class="flex items-center justify-end space-x-3">`;
+                if(isPaid) {
+                    actionHtml += `<span class="text-[9px] font-bold text-green-600 bg-green-50 px-3 py-1 rounded bold-border uppercase">Paid</span>`;
+                    if(isAdmin) actionHtml += `<button onclick="updateStatus(${row.id}, 'Pending')" class="text-[9px] text-slate-400 hover:text-maroon underline font-bold">Undo</button>`;
+                } else if(isAdmin) {
+                    actionHtml += `<button onclick="updateStatus(${row.id}, 'Paid')" class="bg-maroon text-white text-[9px] font-bold px-4 py-1.5 rounded hover:bg-black bold-border">Mark Paid</button>`;
+                    actionHtml += `<button onclick="deleteBooking(${row.id})" class="text-[9px] text-slate-400 hover:text-red-600 font-bold">Remove</button>`;
+                } else { 
+                    actionHtml += `<span class="text-[9px] font-bold text-slate-400 bg-slate-100 px-3 py-1 rounded uppercase bold-border">${row.status}</span>`; 
+                    if (!isAdmin) actionHtml += `<button onclick="deleteBooking(${row.id})" class="text-[9px] text-slate-400 hover:text-red-600 font-bold">Cancel</button>`;
+                }
+                actionHtml += `<button onclick="showDetails(${row.id})" class="text-[9px] font-bold text-maroon hover:underline">Details</button></div>`;
+                list.innerHTML += `<tr class="border-b hover:bg-slate-50 transition"><td class="py-4 px-8 font-semibold">${row.agent_name}</td><td class="py-4 px-8 text-slate-500">${row.client_name}</td><td class="py-4 px-8 font-bold text-slate-700">$${row.amount}</td><td class="py-4 px-8 text-right">${actionHtml}</td></tr>`;
             });
         }
 
         function updateDashboard(data, agentData) {
-            let totalAgentPayout = 0; let active = 0;
+            const months = Array(12).fill(0); let totalPayout = 0; let active = 0;
             const isAdminView = currentAgent.email.toLowerCase() === ADMIN_EMAIL.toLowerCase();
             data.forEach(row => {
+                const travelDate = new Date(row.travel_date);
                 const agent = agentData.find(a => `${a.first_name} ${a.last_name}` === row.agent_name);
                 const rate = agent ? agent.commission_rate : 0.7;
-                if(row.status === 'Paid') { totalAgentPayout += (row.amount * rate); }
-                if(row.status === 'Pending') { active++; }
+                months[travelDate.getMonth()] += row.amount * (isAdminView ? 1 : rate);
+                if(row.status === 'Paid') totalPayout += (row.amount * rate);
+                if(row.status === 'Pending') active++;
             });
-            document.getElementById('total-payout').innerText = totalAgentPayout.toLocaleString(undefined, {minimumFractionDigits: 2});
+            document.getElementById('total-payout').innerText = totalPayout.toLocaleString(undefined, {minimumFractionDigits: 2});
             document.getElementById('active-count').innerText = active;
+            if (myChart) myChart.destroy();
+            const ctx = document.getElementById('earningsChart').getContext('2d');
+            myChart = new Chart(ctx, { type: 'bar', data: { labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'], datasets: [{ label: 'Revenue' , data: months, backgroundColor: '#800000' }] }, options: { maintainAspectRatio: false, plugins: { legend: { display: false } }, scales: { y: { beginAtZero: true, grid: { display: false } }, x: { grid: { display: false } } } } });
         }
+
+        async function saveBooking() {
+            const { error } = await _supabase.from('Bookings').insert([{ agent_name: `${currentAgent.first_name} ${currentAgent.last_name}`, client_name: document.getElementById('client_name').value, amount: parseFloat(document.getElementById('amount').value), travel_date: document.getElementById('travel_date').value, status: 'Pending', notes: document.getElementById('notes').value, booking_no: document.getElementById('booking_no').value }]);
+            if (!error) { document.getElementById('bookingForm').reset(); fetchBookings(); }
+        }
+        async function updateStatus(id, newStatus) { if(confirm(`Confirm ${newStatus}?`)) { await _supabase.from('Bookings').update({ status: newStatus }).eq('id', id); fetchBookings(); } }
+        async function deleteBooking(id) { if(confirm("Remove this record?")) { await _supabase.from('Bookings').delete().eq('id', id); fetchBookings(); } }
+        function showDetails(id) {
+            const b = globalData.find(x => x.id === id); document.getElementById('modal-body').innerHTML = `<p>Conf: ${b.booking_no}</p><p>Notes: ${b.notes}</p>`;
+            document.getElementById('details-modal').style.display = 'block';
+        }
+        function closeModal() { document.getElementById('details-modal').style.display = 'none'; }
     </script>
 </body>
 </html>
