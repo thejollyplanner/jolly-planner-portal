@@ -8,16 +8,16 @@
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;700;900&display=swap');
-        body { font-family: 'Inter', sans-serif; background-color: #f9fafb; }
+        body { font-family: 'Inter', sans-serif; background-color: #f3f4f6; }
         .bg-maroon { background-color: #800000; }
-        .bg-section-dark { background-color: #1f2937; } /* Dark Gray Section */
+        .bg-section-gray { background-color: #374151; } /* Slate Gray Section */
         .bg-tropical-gradient { background: linear-gradient(135deg, #800000 0%, #FB923C 100%); }
         #portal-content { display: none; }
         
-        /* White Input Fields */
+        /* High-Contrast White Fields */
         .input-field { 
             background-color: #ffffff !important; 
-            border: 1px solid #d1d5db !important;
+            border: 1px solid #9ca3af !important;
             color: #111827 !important;
             transition: all 0.2s;
         }
@@ -53,183 +53,23 @@
         </nav>
 
         <main class="p-8 max-w-7xl mx-auto">
-            <div class="bg-section-dark p-10 rounded-[2.5rem] shadow-xl mb-10 relative overflow-hidden">
+            <div class="bg-section-gray p-10 rounded-[2.5rem] shadow-xl mb-10 relative overflow-hidden">
                 <div class="absolute top-0 left-0 w-full h-1.5 bg-tropical-gradient"></div>
                 <h2 class="text-xs font-black uppercase tracking-[0.2em] text-orange-400 mb-8 italic">Log New Commission</h2>
                 <form id="bookingForm" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-6 text-sm font-semibold">
-                    <div class="flex flex-col"><label class="text-[9px] text-gray-400 mb-2 uppercase ml-2">Client (Last, First)</label><input id="client_name" type="text" placeholder="Doe, Jane" class="input-field p-4 rounded-2xl"></div>
-                    <div class="flex flex-col"><label class="text-[9px] text-gray-400 mb-2 uppercase ml-2">Supplier</label><input id="supplier" type="text" class="input-field p-4 rounded-2xl"></div>
-                    <div class="flex flex-col"><label class="text-[9px] text-gray-400 mb-2 uppercase ml-2">Booking #</label><input id="booking_no" type="text" class="input-field p-4 rounded-2xl"></div>
-                    <div class="flex flex-col"><label class="text-[9px] text-gray-400 mb-2 uppercase ml-2 text-orange-400">Total Comm $</label><input id="amount" type="number" class="input-field p-4 rounded-2xl font-bold"></div>
-                    <div class="flex flex-col"><label class="text-[9px] text-gray-400 mb-2 uppercase ml-2">Travel Date</label><input id="travel_date" type="date" class="input-field p-4 rounded-2xl"></div>
+                    <div class="flex flex-col"><label class="text-[9px] text-gray-300 mb-2 uppercase ml-2">Client (Last, First)</label><input id="client_name" type="text" placeholder="Doe, Jane" class="input-field p-4 rounded-2xl"></div>
+                    <div class="flex flex-col"><label class="text-[9px] text-gray-300 mb-2 uppercase ml-2">Supplier</label><input id="supplier" type="text" class="input-field p-4 rounded-2xl"></div>
+                    <div class="flex flex-col"><label class="text-[9px] text-gray-300 mb-2 uppercase ml-2">Booking #</label><input id="booking_no" type="text" class="input-field p-4 rounded-2xl"></div>
+                    <div class="flex flex-col"><label class="text-[9px] text-orange-400 mb-2 uppercase ml-2">Total Commission $</label><input id="amount" type="number" class="input-field p-4 rounded-2xl font-bold"></div>
+                    <div class="flex flex-col"><label class="text-[9px] text-gray-300 mb-2 uppercase ml-2">Travel Date</label><input id="travel_date" type="date" class="input-field p-4 rounded-2xl"></div>
                     <div class="flex flex-col justify-end lg:col-span-5"><button type="button" onclick="saveBooking()" class="bg-orange-500 text-white font-black py-4 rounded-2xl hover:bg-white hover:text-black transition-all uppercase text-[10px] tracking-widest w-full lg:w-1/4 ml-auto">Submit Log</button></div>
                 </form>
             </div>
 
-            <div class="flex flex-wrap items-end gap-4 mb-6 bg-section-dark p-6 rounded-[2rem] shadow-lg border border-white/5">
+            <div class="flex flex-wrap items-end gap-4 mb-6 bg-section-gray p-6 rounded-[2rem] shadow-lg border border-white/5">
                 <div class="flex flex-col flex-1 min-w-[200px]">
-                    <label class="text-[9px] font-black text-gray-400 uppercase mb-2 ml-2">Search Client</label>
+                    <label class="text-[9px] font-black text-gray-300 uppercase mb-2 ml-2">Search Client</label>
                     <input id="search-input" oninput="fetchBookings()" type="text" placeholder="Search Doe, Jane..." class="input-field p-3 rounded-xl text-xs font-bold">
                 </div>
                 <div class="flex flex-col">
-                    <label class="text-[9px] font-black text-gray-400 uppercase mb-2 ml-2">Month</label>
-                    <select id="month-filter" onchange="fetchBookings()" class="input-field p-3 rounded-xl text-xs font-bold cursor-pointer">
-                        <option value="all">All Months</option>
-                        <option value="01">January</option><option value="02">February</option><option value="03">March</option>
-                        <option value="04">April</option><option value="05">May</option><option value="06">June</option>
-                        <option value="07">July</option><option value="08">August</option><option value="09">September</option>
-                        <option value="10">October</option><option value="11">November</option><option value="12">December</option>
-                    </select>
-                </div>
-                <div class="flex flex-col">
-                    <label class="text-[9px] font-black text-gray-400 uppercase mb-2 ml-2">Year</label>
-                    <select id="year-filter" onchange="fetchBookings()" class="input-field p-3 rounded-xl text-xs font-bold cursor-pointer">
-                        <option value="all">All Time</option>
-                        <option value="2026" selected>2026</option>
-                        <option value="2025">2025</option>
-                    </select>
-                </div>
-                <div id="admin-only-toggle" class="hidden flex flex-col">
-                    <label class="text-[9px] font-black text-gray-400 uppercase mb-2 ml-2 text-orange-400">View Mode</label>
-                    <button id="group-toggle" onclick="toggleGrouping()" class="bg-orange-500/10 border border-orange-500/30 text-orange-400 p-3 rounded-xl text-[10px] font-black uppercase tracking-widest hover:bg-orange-500 hover:text-white transition-all"> Group By Agent: OFF </button>
-                </div>
-            </div>
-
-            <div class="bg-white rounded-[2.5rem] shadow-sm border border-gray-200 overflow-hidden">
-                <div class="p-8 border-b border-gray-50 bg-gray-50/30 flex justify-between items-center">
-                    <h3 id="ledger-title" class="text-[11px] font-black uppercase tracking-[0.2em] text-gray-400 italic">Commission Ledger</h3>
-                    <div id="admin-badge" class="hidden text-[9px] font-black bg-red-100 text-red-900 px-3 py-1 rounded-full uppercase tracking-widest">Master Admin View</div>
-                </div>
-                <table class="w-full text-left">
-                    <thead class="bg-gray-50 text-[10px] uppercase font-black text-gray-400 border-b border-gray-200">
-                        <tr><th class="py-5 px-8">Agent</th><th class="py-5 px-8">Client</th><th class="py-5 px-8">Gross</th><th id="share-header" class="py-5 px-8">Your Payout</th><th class="py-5 px-8">Date</th><th class="py-5 px-8 text-right">Action</th></tr>
-                    </thead>
-                    <tbody id="bookings-list"></tbody>
-                </table>
-            </div>
-        </main>
-    </div>
-
-    <script>
-        const SUPABASE_URL = 'https://dhzkyzqiwxavcxohzfei.supabase.co';
-        const SUPABASE_KEY = 'sb_publishable_EwHbzlR1eSNaRrGCxRbdCQ_R_Djvc08';
-        const _supabase = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
-        const ADMIN_EMAIL = 'thejollyplannerta@gmail.com'; 
-        let currentAgent = null;
-        let isGrouped = false;
-
-        async function attemptLogin() {
-            const email = document.getElementById('login_email').value;
-            const pass = document.getElementById('login_pass').value;
-            const { data } = await _supabase.from('Agents').select('*').eq('email', email).eq('password', pass).single();
-            if (data) {
-                currentAgent = data;
-                document.getElementById('login-screen').style.display = 'none';
-                document.getElementById('portal-content').style.display = 'block';
-                document.getElementById('agent-welcome').innerText = `${data.first_name} ${data.last_name}`;
-                if(email.toLowerCase() === ADMIN_EMAIL.toLowerCase()) {
-                    document.getElementById('admin-badge').classList.remove('hidden');
-                    document.getElementById('admin-only-toggle').classList.remove('hidden');
-                    document.getElementById('ledger-title').innerText = "Master Agency Ledger";
-                    document.getElementById('share-header').innerText = "Agent Payout";
-                }
-                fetchBookings();
-            } else { alert("Invalid Credentials, Captain."); }
-        }
-
-        async function cancelBooking(id) {
-            if(confirm("Are you sure you want to cancel this booking log?")) {
-                await _supabase.from('Bookings').delete().eq('id', id);
-                fetchBookings();
-            }
-        }
-
-        async function updateStatus(id, newStatus) {
-            await _supabase.from('Bookings').update({ status: newStatus }).eq('id', id);
-            fetchBookings();
-        }
-
-        function toggleGrouping() {
-            isGrouped = !isGrouped;
-            document.getElementById('group-toggle').innerText = `Group By Agent: ${isGrouped ? 'ON' : 'OFF'}`;
-            fetchBookings();
-        }
-
-        async function saveBooking() {
-            const fullName = `${currentAgent.first_name} ${currentAgent.last_name}`;
-            const { error } = await _supabase.from('Bookings').insert([{ 
-                agent_name: fullName, 
-                client_name: document.getElementById('client_name').value, 
-                amount: parseFloat(document.getElementById('amount').value), 
-                travel_date: document.getElementById('travel_date').value, 
-                status: 'Pending',
-                notes: `Supplier: ${document.getElementById('supplier').value} | Ref: ${document.getElementById('booking_no').value}` 
-            }]);
-            if (!error) { 
-                document.getElementById('bookingForm').reset(); 
-                fetchBookings(); 
-            } else { alert("Error saving booking."); }
-        }
-
-        async function fetchBookings() {
-            const year = document.getElementById('year-filter').value;
-            const month = document.getElementById('month-filter').value;
-            const search = document.getElementById('search-input').value.toLowerCase();
-            
-            let query = _supabase.from('Bookings').select('*');
-            
-            // Fixed Month/Year logic
-            if (year !== 'all') { 
-                if(month === 'all') {
-                    query = query.gte('travel_date', `${year}-01-01`).lte('travel_date', `${year}-12-31`);
-                } else {
-                    // Logic to handle different days in month
-                    const lastDay = new Date(year, month, 0).getDate();
-                    query = query.gte('travel_date', `${year}-${month}-01`).lte('travel_date', `${year}-${month}-${lastDay}`);
-                }
-            } else if (month !== 'all') {
-                // If year is all but month is selected, filter just by month across any year
-                query = query.filter('travel_date', 'ilike', `%-${month}-%`);
-            }
-
-            if (search) { query = query.ilike('client_name', `%${search}%`); }
-
-            if (currentAgent.email.toLowerCase() !== ADMIN_EMAIL.toLowerCase()) {
-                query = query.eq('agent_name', `${currentAgent.first_name} ${currentAgent.last_name}`);
-            }
-
-            const { data } = await query.order('agent_name', { ascending: true }).order('created_at', { ascending: false });
-            const list = document.getElementById('bookings-list');
-            list.innerHTML = ''; let lastAgent = "";
-            
-            data.forEach(row => {
-                const isAdmin = currentAgent.email.toLowerCase() === ADMIN_EMAIL.toLowerCase();
-                const isPaid = row.status === 'Paid';
-                const myShare = (row.amount * currentAgent.commission_rate).toFixed(2);
-                
-                if (isGrouped && isAdmin && row.agent_name !== lastAgent) {
-                    list.innerHTML += `<tr class="bg-gray-100/50"><td colspan="6" class="py-3 px-8 text-[10px] font-black uppercase text-red-900 border-y border-gray-200">⚓ Agent: ${row.agent_name}</td></tr>`;
-                    lastAgent = row.agent_name;
-                }
-                
-                let actionHtml = `<button onclick="cancelBooking(${row.id})" class="text-[9px] font-black text-gray-400 hover:text-red-600 uppercase tracking-widest mr-4">Cancel</button>`;
-                actionHtml += `<span class="${isPaid ? 'bg-green-500' : 'bg-orange-400'} text-white text-[10px] font-black px-4 py-1.5 rounded-full uppercase tracking-widest">${row.status || 'Pending'}</span>`;
-                
-                if(isAdmin && !isPaid) {
-                    actionHtml = `<button onclick="updateStatus(${row.id}, 'Paid')" class="bg-gray-200 hover:bg-green-500 hover:text-white text-gray-500 text-[10px] font-black px-4 py-1.5 rounded-full uppercase tracking-widest">Mark as Paid</button>`;
-                }
-
-                list.innerHTML += `
-                    <tr class="border-b border-gray-100 text-sm hover:bg-gray-50 transition">
-                        <td class="py-4 px-8 font-bold text-black">${row.agent_name}</td>
-                        <td class="py-4 px-8 text-gray-600">${row.client_name}</td>
-                        <td class="py-4 px-8 font-mono font-bold">$${row.amount}</td>
-                        <td class="py-4 px-8 font-mono text-green-700 font-bold">$${myShare}</td>
-                        <td class="py-4 px-8 text-gray-400 font-medium">${row.travel_date}</td>
-                        <td class="py-4 px-8 text-right">${actionHtml}</td>
-                    </tr>`;
-            });
-        }
-    </script>
-</body>
-</html>
+                    <label class="text-[9px] font-black text-gray-300 uppercase mb-2
