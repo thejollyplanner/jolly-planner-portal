@@ -22,6 +22,9 @@
         .nav-tab:hover { color: white; background: rgba(255,255,255,0.1); }
         .nav-tab.active { color: #800000 !important; background: white !important; }
         .status-btn.active { background-color: #800000 !important; color: white !important; border-color: #000000 !important; }
+        .vendor-card { position: relative; }
+        .vendor-tooltip { visibility: hidden; position: absolute; bottom: 110%; left: 50%; transform: translateX(-50%); width: 280px; background-color: #1a1a1a; color: white; padding: 18px; border-radius: 4px; border: 2.5px solid #000000; z-index: 50; opacity: 0; transition: opacity 0.3s; box-shadow: 0 10px 25px rgba(0, 0, 0, 0.4); }
+        .vendor-card:hover .vendor-tooltip { visibility: visible; opacity: 1; }
     </style>
 </head>
 <body class="text-slate-900">
@@ -32,7 +35,7 @@
                 <h2 class="text-xl font-black italic text-maroon">🌴 Voyage Manifest</h2>
                 <button onclick="closeModal()" class="text-slate-400 hover:text-maroon text-2xl">×</button>
             </div>
-            <div id="modal-body" class="space-y-6 text-sm font-semibold"></div>
+            <div id="modal-body" class="space-y-6 text-sm font-semibold text-slate-800"></div>
             <button onclick="closeModal()" class="w-full mt-10 bg-obsidian text-white font-bold py-4 rounded uppercase text-[10px] bold-border">Close Manifest</button>
         </div>
     </div>
@@ -150,11 +153,42 @@
             </div>
 
             <div id="tab-archives" class="tab-content">
-                <div class="bg-white p-8 rounded-lg bold-border shadow-sm max-w-md">
-                    <h2 class="text-2xl font-black italic text-maroon mb-6 border-b-2 border-black pb-2">⚓ Merchant's Row</h2>
-                    <div class="space-y-4">
-                        <a href="https://www.cruisingpower.com/" target="_blank" class="flex justify-between items-center p-4 bg-slate-50 rounded bold-border hover:bg-maroon hover:text-white transition-all font-bold font-mono"><span>CruisingPower</span><span>→</span></a>
-                        <a href="https://www.disneytravelagents.com/" target="_blank" class="flex justify-between items-center p-4 bg-slate-50 rounded bold-border hover:bg-maroon hover:text-white transition-all font-bold font-mono"><span>Disney Travel</span><span>→</span></a>
+                <div class="grid grid-cols-1 lg:grid-cols-3 gap-10">
+                    <div class="lg:col-span-1 space-y-10">
+                        <div class="bg-white p-8 rounded-lg bold-border shadow-sm">
+                            <h2 class="text-2xl font-black italic text-maroon mb-6 border-b-2 border-black pb-2">⚓ Quartermaster's Log</h2>
+                            <div class="space-y-6 text-sm italic text-slate-700">
+                                <p><strong>$0 - $4,999:</strong> 70% split</p>
+                                <p><strong>$5,000 - $14,999:</strong> 75% split</p>
+                                <p><strong>$15,000+:</strong> 80% split</p>
+                                <div class="pt-4 border-t border-black/10">
+                                    <h4 class="font-black text-[10px] uppercase text-slate-400 mb-2 italic">CLIA Card Requirements</h4>
+                                    <p>Earn $600+ in commission to apply for your Individual Agent Card at <a href="https://cruising.org/" target="_blank" class="text-maroon underline">Cruise International</a>.</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="lg:col-span-1 space-y-8">
+                        <div class="bg-white p-8 rounded-lg bold-border shadow-sm">
+                            <h2 class="text-2xl font-black italic text-maroon mb-8 border-b-2 border-black pb-2">🌴 Merchant's Row</h2>
+                            <div class="space-y-4">
+                                <div class="vendor-card"><div class="vendor-tooltip text-[10px] font-bold"><p>CLIA: 00847663</p></div><a href="https://www.cruisingpower.com/" target="_blank" class="flex justify-between items-center p-4 bg-slate-50 rounded bold-border hover:bg-maroon hover:text-white transition-all font-bold"><span>CruisingPower</span><span>→</span></a></div>
+                                <div class="vendor-card"><div class="vendor-tooltip text-[10px] font-bold"><p>CLIA: 00847663</p></div><a href="https://www.disneytravelagents.com/" target="_blank" class="flex justify-between items-center p-4 bg-slate-50 rounded bold-border hover:bg-maroon hover:text-white transition-all font-bold"><span>Disney Travel</span><span>→</span></a></div>
+                                <div class="vendor-card"><div class="vendor-tooltip text-[10px] font-bold"><p>CLIA: 00847663</p></div><a href="https://www.expedia.com/TAAP-Registration" target="_blank" class="flex justify-between items-center p-4 bg-slate-50 rounded bold-border hover:bg-maroon hover:text-white transition-all font-bold"><span>Expedia TAAP</span><span>→</span></a></div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="lg:col-span-1 space-y-10">
+                        <div class="bg-obsidian p-8 rounded-lg bold-border shadow-xl text-white">
+                            <h2 class="text-2xl font-black italic text-slate-300 mb-6 border-b-2 border-white/20 pb-2">🌴 Captain's Code</h2>
+                            <div class="space-y-6">
+                                <a href="https://docs.google.com/document/d/1YeXqTuxCG0ONQ0Gc1cYd1MqUwxysjoEoctrv2QavYnc/edit" target="_blank" class="block w-full bg-maroon text-white font-black py-4 rounded bold-border text-center hover:bg-white hover:text-maroon transition-all uppercase text-[11px] tracking-widest">
+                                    Open Agency Handbook
+                                </a>
+                                <p class="text-[11px] text-slate-300 italic leading-relaxed">"Payments are processed on the 15th and last day of each month. Voyages must be completed before payout."</p>
+                                <div class="pt-6 border-t border-white/10 text-center"><p class="text-2xl font-black italic font-mono tracking-wider">CLIA: 00847663</p></div>
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -168,17 +202,13 @@
         const ADMIN_EMAIL = 'thejollyplannerta@gmail.com'; 
         let currentAgent = null; let myChart = null; let globalData = []; let selectedStatus = 'all';
 
-        // --- AUTO-POPULATING YEAR FILTER ---
         function initYearFilter() {
             const yearSelect = document.getElementById('taxYearToggle');
             const currentYear = new Date().getFullYear();
             yearSelect.innerHTML = '<option value="any">Any Year</option>';
-            // Automatically adds years from 2024 to current year + 1
             for (let y = 2024; y <= currentYear + 1; y++) {
                 let opt = document.createElement('option');
-                opt.value = y;
-                opt.textContent = y;
-                yearSelect.appendChild(opt);
+                opt.value = y; opt.textContent = y; yearSelect.appendChild(opt);
             }
             yearSelect.value = currentYear;
         }
@@ -209,12 +239,8 @@
             const { data } = await query.order('created_at', { ascending: false });
             let filtered = data || [];
 
-            // PAY PERIOD LOGIC (15th & Last Day)
             if (period !== 'all') {
-                const now = new Date();
-                let start, end;
-                const isFirstHalf = now.getDate() <= 15;
-
+                const now = new Date(); let start, end; const isFirstHalf = now.getDate() <= 15;
                 if (period === 'current') {
                     start = isFirstHalf ? new Date(now.getFullYear(), now.getMonth(), 1) : new Date(now.getFullYear(), now.getMonth(), 16);
                     end = isFirstHalf ? new Date(now.getFullYear(), now.getMonth(), 15) : new Date(now.getFullYear(), now.getMonth() + 1, 0);
@@ -225,13 +251,9 @@
                     start = isFirstHalf ? new Date(now.getFullYear(), now.getMonth(), 16) : new Date(now.getFullYear(), now.getMonth() + 1, 1);
                     end = isFirstHalf ? new Date(now.getFullYear(), now.getMonth() + 1, 0) : new Date(now.getFullYear(), now.getMonth() + 1, 15);
                 }
-                filtered = filtered.filter(b => {
-                    const d = new Date(b.travel_date);
-                    return d >= start && d <= end;
-                });
+                filtered = filtered.filter(b => { const d = new Date(b.travel_date); return d >= start && d <= end; });
             }
 
-            // YEAR FILTER LOGIC
             if (year !== 'any') filtered = filtered.filter(b => new Date(b.travel_date).getFullYear() == year);
             if (search) filtered = filtered.filter(b => b.client_name.toLowerCase().includes(search) || b.booking_no.toLowerCase().includes(search));
 
@@ -269,7 +291,6 @@
             document.getElementById('active-count').innerText = data.length;
             const netEl = document.getElementById('agency-revenue');
             if(netEl) netEl.innerText = "$" + net.toLocaleString();
-            
             if (myChart) myChart.destroy();
             const ctx = document.getElementById('earningsChart').getContext('2d');
             myChart = new Chart(ctx, { type: 'bar', data: { labels: ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'], datasets: [{ label: 'Revenue', data: months, backgroundColor: '#800000' }] }, options: { maintainAspectRatio: false, plugins: { legend: { display: false } } } });
@@ -288,7 +309,21 @@
         async function updateStatus(id, s) { if(confirm("Update status?")) { await _supabase.from('Bookings').update({status: s}).eq('id', id); fetchBookings(); } }
         function switchTab(t) { document.querySelectorAll('.tab-content').forEach(x => x.classList.remove('active')); document.querySelectorAll('.nav-tab').forEach(x => x.classList.remove('active')); document.getElementById('tab-'+t).classList.add('active'); document.getElementById('tab-btn-'+t).classList.add('active'); if(t==='deck') fetchBookings(); }
         function setStatusFilter(s) { selectedStatus = s; document.querySelectorAll('.status-btn').forEach(x => x.classList.remove('active')); document.getElementById('btn-'+s).classList.add('active'); fetchBookings(); }
-        function showDetails(id) { const b = globalData.find(x => x.id === id); document.getElementById('modal-body').innerHTML = `<p>Conf #: ${b.booking_no}</p><p>Supplier: ${b.supplier}</p><p>Notes: ${b.notes}</p>`; document.getElementById('details-modal').style.display = 'block'; }
+        
+        function showDetails(id) { 
+            const b = globalData.find(x => x.id === id); 
+            const date = new Date(b.travel_date).toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' });
+            document.getElementById('modal-body').innerHTML = `
+                <p class="uppercase text-[10px] text-slate-400">Travel Date</p>
+                <p class="mb-4 font-bold text-maroon">${date}</p>
+                <p class="uppercase text-[10px] text-slate-400">Confirmation #</p>
+                <p class="mb-4 font-mono font-bold">${b.booking_no}</p>
+                <p class="uppercase text-[10px] text-slate-400">Supplier</p>
+                <p class="mb-4 font-bold">${b.supplier}</p>
+                <p class="uppercase text-[10px] text-slate-400">Internal Notes</p>
+                <p class="italic text-slate-500">"${b.notes || 'No notes.'}"</p>`;
+            document.getElementById('details-modal').style.display = 'block'; 
+        }
         function closeModal() { document.getElementById('details-modal').style.display = 'none'; }
     </script>
 </body>
